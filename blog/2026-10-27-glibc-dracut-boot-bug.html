@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Bug That Broke the Boot · LoongFire Blog</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .story-wrap { max-width: 900px; margin: 0 auto; padding: 2rem 1.2rem 4rem; }
+        .story-hero { text-align: center; margin-bottom: 2rem; padding-bottom: 1.4rem; border-bottom: 2px solid #f0e4cc; }
+        .story-hero h1 { color: #1f2f34; font-size: 1.9rem; line-height: 1.35; margin-bottom: .6rem; }
+        .story-hero .subtitle { color: #6b5f4e; font-size: 1rem; }
+        .story-meta { font-size: .85rem; color: #8a7c67; margin-top: .9rem; }
+        .story-meta i { margin-right: .3rem; }
+        .story-tags { margin-top: .8rem; }
+        .story-tag {
+            display: inline-block; font-size: .75rem; padding: 2px 9px;
+            background: #f0e4cc; color: #7a5a1a; border-radius: 12px; margin: 0 .3rem;
+        }
+        .story-card {
+            background: #fffdf7; border: 1px solid #e6dcc8; border-radius: 12px;
+            padding: 1.6rem 1.8rem; margin: 1.6rem 0;
+            box-shadow: 0 2px 10px rgba(60,45,20,.06);
+        }
+        .story-card h2 { color: #8b0000; font-size: 1.3rem; margin: 0 0 .9rem; border-bottom: 2px solid #f0e4cc; padding-bottom: .5rem; }
+        .story-card p { line-height: 1.75; color: #3a3126; margin: .7rem 0; }
+        .story-card ul { line-height: 1.75; color: #3a3126; margin: .6rem 0 .6rem 1.2rem; }
+        .story-card a { color: #a35f1a; text-decoration: none; border-bottom: 1px dotted #b87d38; }
+        .story-card a:hover { color: #8b0000; }
+        .story-card code { background: #f3ece0; padding: 1px 6px; border-radius: 4px; font-size: .9em; color: #7a2e2e; }
+        .story-card pre {
+            background: #2b2b2b; color: #f1e9d8; padding: 1rem 1.2rem;
+            border-radius: 8px; overflow-x: auto; font-size: .88rem; line-height: 1.6;
+        }
+        .story-card pre code { background: none; color: inherit; padding: 0; }
+        .callout { background: #fff4e0; border-left: 4px solid #d9a441; padding: .9rem 1.2rem; border-radius: 6px; margin: 1rem 0; }
+        .callout-danger { background: #fdecec; border-left-color: #c0392b; }
+        .callout-info { background: #eaf3fb; border-left-color: #3a7ca5; }
+        .post-nav { display: flex; justify-content: space-between; margin: 2.5rem 0 0; font-size: .9rem; }
+        .post-nav a { color: #a35f1a; text-decoration: none; border-bottom: 1px dotted #b87d38; }
+        body.lang-en [data-lang="zh"], body.lang-zh [data-lang="en"] { display: none !important; }
+    </style>
+</head>
+<body class="lang-en">
+
+    <header class="header">
+        <div class="logo-area">
+            <span class="logo-icon"><i class="fas fa-dragon"></i></span>
+            <span class="logo-text">
+                LoongFire <small>· 龙火</small>
+                <small style="font-weight:300; font-size:0.9rem; margin-left:0.3rem;" data-lang="en">firewall · eBPF</small>
+                <small style="font-weight:300; font-size:0.9rem; margin-left:0.3rem;" data-lang="zh">防火墙 · eBPF</small>
+            </span>
+        </div>
+        <button class="lang-toggle" id="langToggle">
+            <i class="fas fa-globe"></i>
+            <span data-lang="en">EN / 中文</span>
+            <span data-lang="zh">中文 / EN</span>
+        </button>
+    </header>
+
+    <nav class="navbar">
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="../index.html" class="nav-link"><i class="fas fa-home"></i> <span data-lang="en">Home</span><span data-lang="zh">首页</span></a></li>
+            <li class="nav-item dropdown">
+                <a href="../index.html#project" class="nav-link"><i class="fas fa-info-circle"></i> <span data-lang="en">About</span><span data-lang="zh">关于</span></a>
+                <div class="dropdown-content">
+                    <a href="../index.html#project"><span data-lang="en">Project LoongFire</span><span data-lang="zh">LoongFire 项目</span></a>
+                    <a href="../index.html#loongson-port"><span data-lang="en">Loongson Port</span><span data-lang="zh">龙芯移植</span></a>
+                    <a href="../index.html#team"><span data-lang="en">Team</span><span data-lang="zh">团队</span></a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a href="#" class="nav-link"><i class="fas fa-book-open"></i> <span data-lang="en">Resources</span><span data-lang="zh">资源</span></a>
+                <div class="dropdown-content">
+                    <a href="https://ipfire.org/" target="_blank"><span data-lang="en">IPFire Docs</span><span data-lang="zh">IPFire 文档</span></a>
+                    <a href="https://ebpf.io/" target="_blank"><span data-lang="en">eBPF.io</span><span data-lang="zh">eBPF 官网</span></a>
+                    <a href="https://github.com/vincentmli/loongfire" target="_blank"><span data-lang="en">GitHub</span><span data-lang="zh">GitHub</span></a>
+                </div>
+            </li>
+            <li class="nav-item"><a href="index.html" class="nav-link"><i class="fas fa-pen-nib"></i> <span data-lang="en">Blog</span><span data-lang="zh">博客</span></a></li>
+            <li class="nav-item dropdown">
+                <a href="#" class="nav-link"><i class="fas fa-download"></i> <span data-lang="en">Download</span><span data-lang="zh">下载</span></a>
+                <div class="dropdown-content">
+                    <a href="https://www.bpfire.net/download/loongfire/images_loongarch64/" target="_blank"><span data-lang="en">LoongArch</span><span data-lang="zh">龙架构</span></a>
+                    <a href="https://www.bpfire.net/download/loongfire/images_x86_64/" target="_blank"><span data-lang="en">X86_64</span><span data-lang="zh">X86_64</span></a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a href="#" class="nav-link"><i class="fas fa-play"></i> <span data-lang="en">Demo</span><span data-lang="zh">演示</span></a>
+                <div class="dropdown-content">
+                    <a href="https://youtu.be/1pdNgoP-Kho?si=ar517D0sQq7gYv2_" target="_blank"><span data-lang="en">Youtube Demo Video</span><span data-lang="zh">油管演示视频</span></a>
+                    <a href="https://youtu.be/rVHkBf1HB7Y" target="_blank"><span data-lang="en">Loongson Mini PC Demo</span><span data-lang="zh">龙芯迷你 PC 演示</span></a>
+                    <a href="https://space.bilibili.com/622328985" target="_blank"><span data-lang="en">Bilibili Video collections</span><span data-lang="zh">Bilibili 视频集</span></a>
+                </div>
+            </li>
+            <li class="nav-item"><a href="../index.html#contactSection" class="nav-link"><i class="fas fa-envelope"></i> <span data-lang="en">Contact</span><span data-lang="zh">联系</span></a></li>
+        </ul>
+    </nav>
+
+    <main class="story-wrap">
+        <!-- story hero -->
+        <div class="story-hero">
+            <h1 data-lang="en">The Bug That Broke the Boot:<br>How a glibc Update Silently Crippled dracut</h1>
+            <h1 data-lang="zh">一个让启动失败的 Bug：<br>glibc 更新如何悄然瘫痪了 dracut</h1>
+            <p class="subtitle" data-lang="en">A story of bisecting 550 commits, a niche architecture fork, and a near-miss for IPFire Core Update 205.</p>
+            <p class="subtitle" data-lang="zh">一个关于 550 个提交二分查找、一个小众架构分支，以及 IPFire Core Update 205 惊险躲过一劫的故事。</p>
+            <p class="story-meta">
+                <i class="fas fa-calendar-alt"></i>
+                <span data-lang="en">2026-10-27</span><span data-lang="zh">2026-10-27</span>
+                <span style="margin:0 .4rem;">·</span>
+                <i class="fas fa-users"></i>
+                <span data-lang="en">LoongFire Team</span><span data-lang="zh">LoongFire 团队</span>
+                <span style="margin:0 .4rem;">·</span>
+                <i class="fas fa-bug"></i>
+                <span data-lang="en">glibc 34861 / IPFire 14666</span><span data-lang="zh">glibc 34861 / IPFire 14666</span>
+            </p>
+            <div class="story-tags">
+                <span class="story-tag">glibc</span>
+                <span class="story-tag">dracut</span>
+                <span class="story-tag">LoongArch</span>
+                <span class="story-tag">IPFire</span>
+                <span class="story-tag">bisect</span>
+            </div>
+        </div>
+
+        <!-- ===================== ENGLISH ===================== -->
+        <div data-lang="en">
+            <div class="story-card">
+                <h2><i class="fas fa-fire"></i> A Fork, a Fire, and a Failure</h2>
+                <p>The <b>LoongFire team</b> maintains LoongFire, a fork of the IPFire firewall distribution retargeted for the Loongson LoongArch64 architecture. It is a labor of love: a full Linux distribution built from scratch for a niche but growing CPU family. Everything was working—until one day it wasn't.</p>
+                <p>The trouble began after the LoongFire team upgraded the glibc in their toolchain from version 2.43 to 2.44. They did a clean rebuild of the entire toolchain, then a clean rebuild of the ISO. The resulting installer booted fine, but when it came time to find the installation medium—the USB drive the ISO had been written to—it simply couldn't. Instead of proceeding to install, the installer fell back to asking the user to "Download installation image."</p>
+                <p>The only thing that had changed was glibc. And bizarrely, the same toolchain with glibc 2.44 built an x86_64 ISO that worked perfectly. This led the LoongFire team to initially suspect the issue was <b>loongarch64-specific</b>—a reasonable assumption given that the failure appeared only on their target architecture while x86_64 builds were unaffected.</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-paper-plane"></i> Filing the Report</h2>
+                <p>On October 23, 2026, the LoongFire team filed <a href="https://sourceware.org/bugzilla/show_bug.cgi?id=34861" target="_blank">Bug 34861</a> against glibc 2.44. They included the relevant IPFire installer code: <code>hw_find_source_medium()</code> walks block devices via libudev, skipping loop, fd, ram, and md devices, and testing each remaining candidate with <code>hw_test_source_medium()</code>. They explained what they knew: the only variable was glibc 2.43 → 2.44, the problem appeared to be architecture-specific, and reverting the glibc commit made it disappear.</p>
+                <p>The glibc maintainers—Adhemerval Zanella and Carlos O'Donell—responded promptly but cautiously. They agreed the report needed more detail: what exactly was failing, what symbols were involved, and where the behavior diverged. They suggested strace, gdb, valgrind, and—crucially—bisecting glibc between the 2.43 and 2.44 tags. Carlos noted there were 550 commits between the two releases, meaning roughly 9–10 build-and-test cycles to narrow it down.</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-search"></i> The Bisect</h2>
+                <p>The LoongFire team got to work. Each cycle was time-consuming: rebuild glibc, rebuild the toolchain, rebuild the ISO, write it to USB, boot a Loongson machine, and see whether the installer found the medium. But they persisted, and by October 25 they had it: commit <b>99303f3871</b>, "io: Use gnulib fts implementation (BZ 22944, BZ 20331)."</p>
+                <p>The bisect log told a clear story. ISOs built before that commit were 515 MB and worked. ISOs built at or after it were 487 MB and failed. Something in the new <code>fts</code> implementation was causing dracut—which LoongFire, like IPFire, uses to build its initramfs—to silently drop files.</p>
+                <p>The LoongFire team connected the dots: LoongFire's ISO build invokes <code>dracut --install "/usr/sbin/chroot" --force -a "installer" --strip ...</code>, and they suspected this was related to <a href="https://sourceware.org/bugzilla/show_bug.cgi?id=34078" target="_blank">Bug 34078</a>, which involved dracut-install. They tested a simple dracut-ng fix from <a href="https://github.com/dracut-ng/dracut-ng/pull/2394" target="_blank">PR #2394</a> referencing that bug—and it resolved the issue.</p>
+                <p>Adhemerval confirmed the connection, and Bug 34861 was marked a duplicate of Bug 34078.</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-microscope"></i> The Root Cause</h2>
+                <p>The technical story is elegant and nasty in equal measure. glibc 2.44 switched its <code>fts</code> (file tree walk) implementation to the one from gnulib. The gnulib implementation honors the <code>FTS_NOSTAT</code> flag more strictly than the old one. dracut-install walks kernel module directories using <code>FTS_NOSTAT</code>, which tells <code>fts</code> not to bother calling <code>stat()</code> on entries. Under the old implementation, regular files were still reported as <code>FTS_F</code>. Under the new one, they come back as <code>FTS_NSOK</code>—"no stat information available"—and dracut-install's logic, which was looking for <code>FTS_F</code>, silently ignored every single one.</p>
+                <p>The result: dracut could still <i>find</i> the directories (e.g., <code>drivers/net/ethernet</code> or <code>drivers/md</code>), but it skipped every module file inside them. Only modules named explicitly—like <code>e1000</code> or <code>virtio_net</code>—made it into the initramfs.</p>
+                <div class="callout callout-info">
+                    <b>Crucially, this was not loongarch64-specific at all.</b> The initial suspicion that the bug was tied to the LoongArch64 architecture turned out to be wrong. The gnulib <code>fts</code> change affects every architecture. The reason the x86_64 ISO appeared to work was almost certainly that the particular x86_64 test machine happened to use disk and network drivers that dracut still picked up—because dracut was only dropping loadable kernel <i>modules</i>, not drivers built directly into the kernel. If the test machine's storage and network controllers were handled by built-in kernel drivers, or by modules that happened to be named explicitly, the installer would find its medium and proceed normally. The bug was architecture-independent; the x86_64 "success" was simply an accident of which drivers that particular machine needed.
+                </div>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-shield-alt"></i> IPFire Picks Up the Thread</h2>
+                <p>The LoongFire team had also informed the IPFire team, and on October 26, Michael Tremer filed <a href="https://bugzilla.ipfire.org/show_bug.cgi?id=14666" target="_blank">IPFire Bug 14666</a>. His analysis was thorough and alarming. IPFire ships dracut-ng 108, which lacks the upstream fix. And Core Update 205 was about to ship glibc 2.44.</p>
+                <p>The impact was severe:</p>
+                <ul>
+                    <li><b>System initramfs</b> would contain only 69 modules instead of hundreds. Missing would be MegaRAID (<code>megaraid_sas</code>), LSI/Broadcom SAS (<code>mpt3sas</code>), HPE Smart Array (<code>hpsa</code>), Adaptec (<code>aacraid</code>), Microsemi (<code>smartpqi</code>), Hyper-V storage (<code>hv_storvsc</code>), VMware PVSCSI, Xen block devices, software RAID (<code>raid1</code>, <code>raid10</code>, <code>raid456</code>), and SD/MMC. Any system whose root filesystem needed one of these might not boot after its initramfs was regenerated.</li>
+                    <li><b>The installer</b> would contain only six network drivers (the ones named explicitly by the <code>qemu-net</code> module). Common NICs like <code>e1000e</code>, <code>igb</code>, <code>ixgbe</code>, <code>i40e</code>, <code>ice</code>, <code>igc</code>, and <code>r8169</code> would be missing—meaning network installation would fail on most real hardware.</li>
+                </ul>
+                <p>Michael provided a crisp reproducer inside the build chroot:</p>
+                <pre><code>mkdir /tmp/x
+/usr/lib/dracut/dracut-install -D /tmp/x --kerneldir /lib/modules/$(KVER) -m =drivers/net/ethernet
+find /tmp/x -name "*.ko*" | wc -l</code></pre>
+                <p>It returned 0 without the fix and 191 with it.</p>
+                <p>He initially prepared a backport of the upstream dracut-ng fix (commit <code>40e7af014b47</code>, "fix(dracut-install): remove FTS_NOSTAT in install_modules() fts traversal"). But within half an hour, a better path emerged: Adolf had submitted an update to dracut 112 (patchwork 10498 and 10497), which already contains the upstream fix. No custom backport needed.</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-check-circle"></i> The Fix Lands</h2>
+                <p>By the afternoon of October 26, Michael had applied Adolf's two patches ("dracut: Update to version 112 and move from dracut-ng to dracut" and "core206: Ship dracut"), plus removal of <code>/usr/lib/dracut/dracut-init.sh</code> and <code>/usr/lib/dracut/dracut-version.sh</code>, which dracut 112 no longer ships.</p>
+                <p>A full clean build confirmed success:</p>
+                <ul>
+                    <li><b>System initramfs</b>: 588 kernel modules (up from 69), now 54 MB instead of 44 MB. MegaRAID, mpt3sas, hv_storvsc, vmw_pvscsi, raid1, xen-blkfront, and the common network drivers were all back.</li>
+                    <li><b>Installer</b>: all network and storage drivers restored.</li>
+                </ul>
+                <p>But the fix revealed a secondary problem: with all modules found again, the installer's dependency on the <code>drm</code> dracut module pulled in every GPU driver and its firmware—NVIDIA, AMDGPU, i915—ballooning the installer from 56 MB to 192 MB. Since the installer only needs a text console (the kernel provides that with built-in simpledrm/efifb/vesafb), Michael added "installer: Don't add any graphics drivers," bringing it back to 55 MB with all drivers intact.</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-exclamation-triangle"></i> The Scariest Part</h2>
+                <p>Perhaps the most important correction came in Michael's fifth comment. He had initially written that existing systems updated through Pakfire would still have an older glibc and thus be safe. He corrected himself: <b>Core Update 205 ships glibc 2.44</b>, and its <code>update.sh</code> runs <code>dracut --regenerate-all</code>. Every system that installed Core Update 205 with dracut-ng 108 would have received an initramfs missing most storage drivers. Systems whose root filesystem needed MegaRAID, MPT3SAS, HPE Smart Array, Adaptec, Microsemi, Hyper-V, VMware PVSCSI, Xen, or software RAID might not have booted afterward.</p>
+                <div class="callout callout-danger">
+                    <b>The saving grace:</b> Core Update 205 had not yet been released. No systems were affected.
+                </div>
+                <p>The fix was pushed to both <code>origin/master</code> (Core Update 205 now ships dracut 112) and <code>origin/next</code>, with the master branch build to follow.</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-lightbulb"></i> What This Story Shows</h2>
+                <p>A single upstream library change—an internal switch to a more standards-compliant <code>fts</code> implementation—propagated through a toolchain, into an initramfs builder, and produced a distribution that could install on some hardware but not others, and might have bricked bootable systems had it shipped. It was caught because the maintainers of a niche architecture fork noticed their installer couldn't find its own USB stick, filed a careful bug report, and spent days bisecting 550 commits.</p>
+                <p>The LoongFire team's initial suspicion that the bug was loongarch64-specific turned out to be wrong—but that suspicion was a natural starting point, and the bisect process is what proved the bug was architecture-independent. The glibc maintainers were right to ask for more data; the LoongFire team was right to provide it. And the IPFire team's rapid response—identifying the blast radius, preparing a backport, then pivoting to a cleaner upstream update—turned a potential disaster into a footnote.</p>
+            </div>
+        </div>
+
+        <!-- ===================== 中文 ===================== -->
+        <div data-lang="zh">
+            <div class="story-card">
+                <h2><i class="fas fa-fire"></i> 一个分支、一团火焰、一次故障</h2>
+                <p><b>LoongFire 团队</b>维护着 LoongFire，这是 IPFire 防火墙发行版的一个分支，被移植到龙芯 LoongArch64 架构上。这是一个倾注心血的项目：一个为小众但不断成长的 CPU 家族从零构建的完整 Linux 发行版。一切本来运行良好——直到某一天不再如此。</p>
+                <p>问题始于 LoongFire 团队将工具链中的 glibc 从 2.43 升级到 2.44 之后。他们完整地重新构建了整个工具链，然后干净地重新构建了 ISO。生成的安装程序启动正常，但当需要查找安装介质——即写入 ISO 的 U 盘——时，它却找不到。安装程序没有继续安装，而是退回到提示用户"下载安装镜像"。</p>
+                <p>唯一改变的就是 glibc。而奇怪的是，同样的工具链配合 glibc 2.44 构建出的 x86_64 ISO 工作完全正常。这使 LoongFire 团队最初怀疑该问题是 <b>loongarch64 特有的</b>——考虑到故障只出现在他们的目标架构上而 x86_64 构建不受影响，这是一个合理的假设。</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-paper-plane"></i> 提交报告</h2>
+                <p>2026 年 10 月 23 日，LoongFire 团队针对 glibc 2.44 提交了 <a href="https://sourceware.org/bugzilla/show_bug.cgi?id=34861" target="_blank">Bug 34861</a>。他们附上了 IPFire 安装程序的相关代码：<code>hw_find_source_medium()</code> 通过 libudev 遍历块设备，跳过 loop、fd、ram 和 md 设备，并用 <code>hw_test_source_medium()</code> 测试每个剩余候选设备。他们说明了自己掌握的情况：唯一的变量是 glibc 2.43 → 2.44，问题看起来具有架构特异性，回退该 glibc 提交后问题消失。</p>
+                <p>glibc 维护者——Adhemerval Zanella 和 Carlos O'Donell——迅速但谨慎地回应。他们一致认为报告需要更多细节：究竟什么失败了、涉及哪些符号、行为在哪里出现分歧。他们建议使用 strace、gdb、valgrind，以及关键的一点——在 2.43 和 2.44 标签之间对 glibc 进行二分查找。Carlos 指出两个版本之间有 550 个提交，意味着大约需要 9 到 10 轮构建与测试才能缩小范围。</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-search"></i> 二分查找</h2>
+                <p>LoongFire 团队开始工作。每一轮都很耗时：重新构建 glibc、重新构建工具链、重新构建 ISO、写入 U 盘、启动龙芯机器，然后看安装程序是否能找到介质。但他们坚持了下来，到 10 月 25 日，他们找到了：提交 <b>99303f3871</b>，"io: Use gnulib fts implementation (BZ 22944, BZ 20331)"。</p>
+                <p>二分日志清晰地讲述了故事。在该提交之前构建的 ISO 为 515 MB 且工作正常。在该提交及之后构建的 ISO 为 487 MB 且失败。新的 <code>fts</code> 实现中的某些东西导致 dracut——LoongFire 与 IPFire 一样用它来构建 initramfs——静默丢弃了文件。</p>
+                <p>LoongFire 团队将线索串联起来：LoongFire 的 ISO 构建调用了 <code>dracut --install "/usr/sbin/chroot" --force -a "installer" --strip ...</code>，他们怀疑这与涉及 dracut-install 的 <a href="https://sourceware.org/bugzilla/show_bug.cgi?id=34078" target="_blank">Bug 34078</a> 有关。他们测试了引用该 bug 的 <a href="https://github.com/dracut-ng/dracut-ng/pull/2394" target="_blank">PR #2394</a> 中的一个简单 dracut-ng 修复——问题解决了。</p>
+                <p>Adhemerval 确认了这一关联，Bug 34861 被标记为 Bug 34078 的重复项。</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-microscope"></i> 根本原因</h2>
+                <p>这个技术故事既优雅又棘手。glibc 2.44 将其 <code>fts</code>（文件树遍历）实现切换为来自 gnulib 的版本。gnulib 实现比旧实现更严格地遵守 <code>FTS_NOSTAT</code> 标志。dracut-install 使用 <code>FTS_NOSTAT</code> 遍历内核模块目录，该标志告诉 <code>fts</code> 不必对条目调用 <code>stat()</code>。在旧实现下，常规文件仍被报告为 <code>FTS_F</code>。在新实现下，它们返回 <code>FTS_NSOK</code>——"无 stat 信息可用"——而 dracut-install 中寻找 <code>FTS_F</code> 的逻辑静默忽略了每一个文件。</p>
+                <p>结果：dracut 仍能<i>找到</i>目录（例如 <code>drivers/net/ethernet</code> 或 <code>drivers/md</code>），但跳过了其中的每个模块文件。只有显式命名的模块——如 <code>e1000</code> 或 <code>virtio_net</code>——才进入 initramfs。</p>
+                <div class="callout callout-info">
+                    <b>关键在于，这根本不是 loongarch64 特有的。</b>最初认为该 bug 与 LoongArch64 架构相关的怀疑最终被证明是错误的。gnulib <code>fts</code> 的变更影响每一个架构。x86_64 ISO 看似正常的原因，几乎可以肯定是在那台特定的 x86_64 测试机器上，它使用的磁盘和网络驱动恰好仍被 dracut 选中——因为 dracut 只丢弃了可加载的内核<i>模块</i>，而没有丢弃直接编译进内核的驱动。如果测试机器的存储和网络控制器由内核内置驱动处理，或者由恰好被显式命名的模块处理，安装程序就能找到介质并正常进行。这个 bug 是与架构无关的；x86_64 的"成功"只是那台特定机器所需驱动的偶然巧合。
+                </div>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-shield-alt"></i> IPFire 接棒</h2>
+                <p>LoongFire 团队也通知了 IPFire 团队，10 月 26 日，Michael Tremer 提交了 <a href="https://bugzilla.ipfire.org/show_bug.cgi?id=14666" target="_blank">IPFire Bug 14666</a>。他的分析详尽且令人警觉。IPFire 发布的是 dracut-ng 108，缺少上游修复。而 Core Update 205 即将发布 glibc 2.44。</p>
+                <p>影响十分严重：</p>
+                <ul>
+                    <li><b>系统 initramfs</b> 将只包含 69 个模块，而非数百个。缺失的将包括 MegaRAID（<code>megaraid_sas</code>）、LSI/Broadcom SAS（<code>mpt3sas</code>）、HPE Smart Array（<code>hpsa</code>）、Adaptec（<code>aacraid</code>）、Microsemi（<code>smartpqi</code>）、Hyper-V 存储（<code>hv_storvsc</code>）、VMware PVSCSI、Xen 块设备、软件 RAID（<code>raid1</code>、<code>raid10</code>、<code>raid456</code>）以及 SD/MMC。任何根文件系统需要其中之一的系统，在 initramfs 重新生成后可能无法启动。</li>
+                    <li><b>安装程序</b>将只包含六个网络驱动（由 <code>qemu-net</code> 模块显式命名的那些）。常见网卡如 <code>e1000e</code>、<code>igb</code>、<code>ixgbe</code>、<code>i40e</code>、<code>ice</code>、<code>igc</code> 和 <code>r8169</code> 将缺失——意味着网络安装在大多数真实硬件上会失败。</li>
+                </ul>
+                <p>Michael 在构建 chroot 内提供了一个简洁的复现方法：</p>
+                <pre><code>mkdir /tmp/x
+/usr/lib/dracut/dracut-install -D /tmp/x --kerneldir /lib/modules/$(KVER) -m =drivers/net/ethernet
+find /tmp/x -name "*.ko*" | wc -l</code></pre>
+                <p>没有修复时返回 0，有修复时返回 191。</p>
+                <p>他最初准备了一个上游 dracut-ng 修复的回移（提交 <code>40e7af014b47</code>，"fix(dracut-install): remove FTS_NOSTAT in install_modules() fts traversal"）。但半小时内，出现了更好的路径：Adolf 提交了 dracut 112 的更新（patchwork 10498 和 10497），其中已包含上游修复。无需自定义回移。</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-check-circle"></i> 修复落地</h2>
+                <p>到 10 月 26 日下午，Michael 已应用 Adolf 的两个补丁（"dracut: Update to version 112 and move from dracut-ng to dracut" 和 "core206: Ship dracut"），并移除了 dracut 112 不再提供的 <code>/usr/lib/dracut/dracut-init.sh</code> 和 <code>/usr/lib/dracut/dracut-version.sh</code>。</p>
+                <p>一次完整的干净构建确认成功：</p>
+                <ul>
+                    <li><b>系统 initramfs</b>：588 个内核模块（从 69 个增加），现在为 54 MB 而非 44 MB。MegaRAID、mpt3sas、hv_storvsc、vmw_pvscsi、raid1、xen-blkfront 以及常见网络驱动全部恢复。</li>
+                    <li><b>安装程序</b>：所有网络和存储驱动恢复。</li>
+                </ul>
+                <p>但修复揭示了一个次要问题：由于所有模块再次被找到，安装程序对 <code>drm</code> dracut 模块的依赖拉入了所有 GPU 驱动及其固件——NVIDIA、AMDGPU、i915——使安装程序从 56 MB 膨胀到 192 MB。由于安装程序只需要文本控制台（内核通过内置的 simpledrm/efifb/vesafb 提供），Michael 添加了 "installer: Don't add any graphics drivers"，使其在包含所有驱动的情况下回到 55 MB。</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-exclamation-triangle"></i> 最惊险的部分</h2>
+                <p>或许最重要的更正出现在 Michael 的第五条评论中。他最初写道，通过 Pakfire 更新的现有系统仍将拥有较旧的 glibc，因此是安全的。他更正了自己：<b>Core Update 205 发布 glibc 2.44</b>，其 <code>update.sh</code> 运行 <code>dracut --regenerate-all</code>。每个安装了 Core Update 205 且使用 dracut-ng 108 的系统，都将收到缺少大多数存储驱动的 initramfs。根文件系统需要 MegaRAID、MPT3SAS、HPE Smart Array、Adaptec、Microsemi、Hyper-V、VMware PVSCSI、Xen 或软件 RAID 的系统，之后可能无法启动。</p>
+                <div class="callout callout-danger">
+                    <b>万幸的是：</b>Core Update 205 尚未发布。没有系统受到影响。
+                </div>
+                <p>修复已推送到 <code>origin/master</code>（Core Update 205 现在发布 dracut 112）和 <code>origin/next</code>，master 分支的构建随后进行。</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-lightbulb"></i> 这个故事说明了什么</h2>
+                <p>一个上游库的单一变更——内部切换到一个更符合标准的 <code>fts</code> 实现——通过工具链传播，进入 initramfs 构建器，产生了一个能在某些硬件上安装而在另一些硬件上不能的发行版，而且如果发布，可能会让可启动系统变砖。它之所以被捕获，是因为一个小众架构分支的维护者注意到他们的安装程序找不到自己的 U 盘，提交了一份细致的 bug 报告，并花了数天对 550 个提交进行二分查找。</p>
+                <p>LoongFire 团队最初怀疑 bug 是 loongarch64 特有的，这一怀疑最终被证明是错误的——但这个怀疑是自然的起点，而二分查找过程正是证明该 bug 与架构无关的关键。glibc 维护者要求更多数据是正确的；LoongFire 团队提供这些数据也是正确的。而 IPFire 团队的快速响应——识别影响范围、准备回移、然后转向更干净的上游更新——将一场潜在的灾难变成了一段脚注。</p>
+            </div>
+        </div>
+
+        <div class="post-nav">
+            <a href="index.html"><i class="fas fa-arrow-left"></i>
+                <span data-lang="en">All posts</span><span data-lang="zh">全部文章</span>
+            </a>
+            <a href="../index.html">
+                <span data-lang="en">Home</span><span data-lang="zh">首页</span> <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>
+            <i class="fas fa-dragon"></i> LoongFire · 龙火 &nbsp;|&nbsp;
+            <span data-lang="en">Open Source Firewall for LoongArch</span>
+            <span data-lang="zh">龙架构开源防火墙</span>
+            <span style="margin:0 0.5rem;">·</span>
+            <span data-lang="en">© 2026 LoongFire Project</span>
+            <span data-lang="zh">© 2026 LoongFire 项目</span>
+        </p>
+    </footer>
+
+    <script>
+    (function () {
+        function getParam(name) {
+            return new URLSearchParams(window.location.search).get(name);
+        }
+        var lang = getParam('lang') || localStorage.getItem('loongfire-lang') || 'en';
+        if (lang !== 'en' && lang !== 'zh') lang = 'en';
+        document.body.classList.remove('lang-en', 'lang-zh');
+        document.body.classList.add('lang-' + lang);
+        document.documentElement.lang = (lang === 'zh' ? 'zh-CN' : 'en');
+        try { localStorage.setItem('loongfire-lang', lang); } catch (e) {}
+        var toggle = document.getElementById('langToggle');
+        if (toggle) {
+            toggle.addEventListener('click', function () {
+                setTimeout(function () {
+                    var current = document.body.classList.contains('lang-zh') ? 'zh' : 'en';
+                    try { localStorage.setItem('loongfire-lang', current); } catch (e) {}
+                }, 0);
+            });
+        }
+    })();
+    </script>
+    <script src="../script.js"></script>
+</body>
+</html>

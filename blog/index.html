@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog · LoongFire 龙火</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .blog-wrap { max-width: 900px; margin: 0 auto; padding: 2rem 1.2rem 4rem; }
+        .blog-hero { text-align: center; margin-bottom: 2.5rem; }
+        .blog-hero h1 { color: #1f2f34; font-size: 1.9rem; margin-bottom: .4rem; }
+        .blog-hero p { color: #6b5f4e; }
+        .post-list { list-style: none; padding: 0; margin: 0; }
+        .post-card {
+            background: #fffdf7; border: 1px solid #e6dcc8; border-radius: 12px;
+            padding: 1.4rem 1.7rem; margin: 1.2rem 0;
+            box-shadow: 0 2px 10px rgba(60,45,20,.06);
+            transition: transform .15s ease, box-shadow .15s ease;
+        }
+        .post-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(60,45,20,.1); }
+        .post-card h2 { margin: 0 0 .4rem; font-size: 1.2rem; }
+        .post-card h2 a { color: #8b0000; text-decoration: none; }
+        .post-card h2 a:hover { color: #a35f1a; }
+        .post-meta { font-size: .82rem; color: #8a7c67; margin-bottom: .6rem; }
+        .post-meta i { margin-right: .3rem; }
+        .post-excerpt { color: #3a3126; line-height: 1.65; margin: 0; }
+        .post-tags { margin-top: .7rem; }
+        .post-tag {
+            display: inline-block; font-size: .75rem; padding: 2px 9px;
+            background: #f0e4cc; color: #7a5a1a; border-radius: 12px;
+            margin-right: .4rem;
+        }
+        .back-home { display: inline-block; margin: 2rem 0 0; color: #a35f1a; border-bottom: 1px dotted #b87d38; text-decoration: none; }
+        body.lang-en [data-lang="zh"], body.lang-zh [data-lang="en"] { display: none !important; }
+    </style>
+</head>
+<body class="lang-en">
+
+    <header class="header">
+        <div class="logo-area">
+            <span class="logo-icon"><i class="fas fa-dragon"></i></span>
+            <span class="logo-text">
+                LoongFire <small>· 龙火</small>
+                <small style="font-weight:300; font-size:0.9rem; margin-left:0.3rem;" data-lang="en">firewall · eBPF</small>
+                <small style="font-weight:300; font-size:0.9rem; margin-left:0.3rem;" data-lang="zh">防火墙 · eBPF</small>
+            </span>
+        </div>
+        <button class="lang-toggle" id="langToggle">
+            <i class="fas fa-globe"></i>
+            <span data-lang="en">EN / 中文</span>
+            <span data-lang="zh">中文 / EN</span>
+        </button>
+    </header>
+
+    <nav class="navbar">
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="../index.html" class="nav-link"><i class="fas fa-home"></i> <span data-lang="en">Home</span><span data-lang="zh">首页</span></a></li>
+            <li class="nav-item dropdown">
+                <a href="../index.html#project" class="nav-link"><i class="fas fa-info-circle"></i> <span data-lang="en">About</span><span data-lang="zh">关于</span></a>
+                <div class="dropdown-content">
+                    <a href="../index.html#project"><span data-lang="en">Project LoongFire</span><span data-lang="zh">LoongFire 项目</span></a>
+                    <a href="../index.html#loongson-port"><span data-lang="en">Loongson Port</span><span data-lang="zh">龙芯移植</span></a>
+                    <a href="../index.html#team"><span data-lang="en">Team</span><span data-lang="zh">团队</span></a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a href="#" class="nav-link"><i class="fas fa-book-open"></i> <span data-lang="en">Resources</span><span data-lang="zh">资源</span></a>
+                <div class="dropdown-content">
+                    <a href="https://ipfire.org/" target="_blank"><span data-lang="en">IPFire Docs</span><span data-lang="zh">IPFire 文档</span></a>
+                    <a href="https://ebpf.io/" target="_blank"><span data-lang="en">eBPF.io</span><span data-lang="zh">eBPF 官网</span></a>
+                    <a href="https://github.com/vincentmli/loongfire" target="_blank"><span data-lang="en">GitHub</span><span data-lang="zh">GitHub</span></a>
+                </div>
+            </li>
+            <li class="nav-item"><a href="index.html" class="nav-link"><i class="fas fa-pen-nib"></i> <span data-lang="en">Blog</span><span data-lang="zh">博客</span></a></li>
+            <li class="nav-item dropdown">
+                <a href="#" class="nav-link"><i class="fas fa-download"></i> <span data-lang="en">Download</span><span data-lang="zh">下载</span></a>
+                <div class="dropdown-content">
+                    <a href="https://www.bpfire.net/download/loongfire/images_loongarch64/" target="_blank"><span data-lang="en">LoongArch</span><span data-lang="zh">龙架构</span></a>
+                    <a href="https://www.bpfire.net/download/loongfire/images_x86_64/" target="_blank"><span data-lang="en">X86_64</span><span data-lang="zh">X86_64</span></a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a href="#" class="nav-link"><i class="fas fa-play"></i> <span data-lang="en">Demo</span><span data-lang="zh">演示</span></a>
+                <div class="dropdown-content">
+                    <a href="https://youtu.be/1pdNgoP-Kho?si=ar517D0sQq7gYv2_" target="_blank"><span data-lang="en">Youtube Demo Video</span><span data-lang="zh">油管演示视频</span></a>
+                    <a href="https://youtu.be/rVHkBf1HB7Y" target="_blank"><span data-lang="en">Loongson Mini PC Demo</span><span data-lang="zh">龙芯迷你 PC 演示</span></a>
+                    <a href="https://space.bilibili.com/622328985" target="_blank"><span data-lang="en">Bilibili Video collections</span><span data-lang="zh">Bilibili 视频集</span></a>
+                </div>
+            </li>
+            <li class="nav-item"><a href="../index.html#contactSection" class="nav-link"><i class="fas fa-envelope"></i> <span data-lang="en">Contact</span><span data-lang="zh">联系</span></a></li>
+        </ul>
+    </nav>
+
+    <main class="blog-wrap">
+        <div class="blog-hero">
+            <h1><i class="fas fa-pen-nib"></i>
+                <span data-lang="en">LoongFire Blog</span>
+                <span data-lang="zh">LoongFire 博客</span>
+            </h1>
+            <p data-lang="en">Technical write-ups, porting notes, and field reports from the LoongFire team.</p>
+            <p data-lang="zh">来自 LoongFire 团队的技术文章、移植笔记与实战报告。</p>
+        </div>
+
+        <ul class="post-list">
+            <li class="post-card">
+                <h2>
+                    <a href="2026-10-27-glibc-dracut-boot-bug.html?lang=en" data-lang="en">The Bug That Broke the Boot: How a glibc Update Silently Crippled dracut</a>
+                    <a href="2026-10-27-glibc-dracut-boot-bug.html?lang=zh" data-lang="zh">一个让启动失败的 Bug：glibc 更新如何悄然瘫痪了 dracut</a>
+                </h2>
+                <p class="post-meta">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span data-lang="en">2026-10-27 · LoongFire Team</span>
+                    <span data-lang="zh">2026-10-27 · LoongFire 团队</span>
+                </p>
+                <p class="post-excerpt" data-lang="en">
+                    A single glibc 2.44 change to the <code>fts</code> implementation silently broke dracut's module discovery, causing the LoongFire installer to fail to find its own USB medium. This is the story of bisecting 550 commits, discovering the bug was architecture-independent, and the near-miss for IPFire Core Update 205.
+                </p>
+                <p class="post-excerpt" data-lang="zh">
+                    glibc 2.44 对 <code>fts</code> 实现的一次变更悄然破坏了 dracut 的模块发现，导致 LoongFire 安装程序找不到自己的 U 盘介质。这是一个关于二分查找 550 个提交、发现该 bug 与架构无关，以及 IPFire Core Update 205 惊险躲过一劫的故事。
+                </p>
+                <div class="post-tags">
+                    <span class="post-tag">glibc</span>
+                    <span class="post-tag">dracut</span>
+                    <span class="post-tag">LoongArch</span>
+                    <span class="post-tag">IPFire</span>
+                    <span class="post-tag">bisect</span>
+                </div>
+            </li>
+        </ul>
+
+        <a href="../index.html" class="back-home"><i class="fas fa-arrow-left"></i>
+            <span data-lang="en">Back to Home</span>
+            <span data-lang="zh">返回首页</span>
+        </a>
+    </main>
+
+    <footer class="footer">
+        <p>
+            <i class="fas fa-dragon"></i> LoongFire · 龙火 &nbsp;|&nbsp;
+            <span data-lang="en">Open Source Firewall for LoongArch</span>
+            <span data-lang="zh">龙架构开源防火墙</span>
+            <span style="margin:0 0.5rem;">·</span>
+            <span data-lang="en">© 2026 LoongFire Project</span>
+            <span data-lang="zh">© 2026 LoongFire 项目</span>
+        </p>
+    </footer>
+
+    <script>
+    (function () {
+        function getParam(name) {
+            return new URLSearchParams(window.location.search).get(name);
+        }
+        var lang = getParam('lang') || localStorage.getItem('loongfire-lang') || 'en';
+        if (lang !== 'en' && lang !== 'zh') lang = 'en';
+        document.body.classList.remove('lang-en', 'lang-zh');
+        document.body.classList.add('lang-' + lang);
+        document.documentElement.lang = (lang === 'zh' ? 'zh-CN' : 'en');
+        try { localStorage.setItem('loongfire-lang', lang); } catch (e) {}
+        var toggle = document.getElementById('langToggle');
+        if (toggle) {
+            toggle.addEventListener('click', function () {
+                setTimeout(function () {
+                    var current = document.body.classList.contains('lang-zh') ? 'zh' : 'en';
+                    try { localStorage.setItem('loongfire-lang', current); } catch (e) {}
+                }, 0);
+            });
+        }
+    })();
+    </script>
+    <script src="../script.js"></script>
+</body>
+</html>
