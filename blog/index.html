@@ -105,6 +105,31 @@
         <ul class="post-list">
             <li class="post-card">
                 <h2>
+                    <a href="2026-11-04-loongfire-xdp-synproxy-cve-2026-98432.html?lang=en" data-lang="en">LoongFire XDP SYNPROXY: An Efficient Stopgap for CVE-2026-98432</a>
+                    <a href="2026-11-04-loongfire-xdp-synproxy-cve-2026-98432.html?lang=zh" data-lang="zh">LoongFire XDP SYNPROXY：针对 CVE-2026-98432 的高效临时缓解方案</a>
+                </h2>
+                <p class="post-meta">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span data-lang="en">2026-11-04 · LoongFire Team</span>
+                    <span data-lang="zh">2026-11-04 · LoongFire 团队</span>
+                </p>
+                <p class="post-excerpt" data-lang="en">
+                    CVE-2026-98432 is a use-after-free in the kernel's IPv4 TCP handling. While the kernel patch is the real fix, LoongFire's XDP SYNPROXY can drop packets with IP options at ingress — before the vulnerable code path is ever reached — covering both local and forwarded traffic with a single check.
+                </p>
+                <p class="post-excerpt" data-lang="zh">
+                    CVE-2026-98432 是内核 IPv4 TCP 处理中的释放后使用漏洞。内核补丁才是真正的修复，但 LoongFire 的 XDP SYNPROXY 可以在入口处丢弃带 IP 选项的报文——早于漏洞代码路径被触达——只需一处检查即可同时覆盖本机与转发流量。
+                </p>
+                <div class="post-tags">
+                    <span class="post-tag">XDP</span>
+                    <span class="post-tag">security</span>
+                    <span class="post-tag">CVE</span>
+                    <span class="post-tag">netfilter</span>
+                    <span class="post-tag">LoongArch</span>
+                </div>
+            </li>
+
+            <li class="post-card">
+                <h2>
                     <a href="2026-10-28-ipfire-officially-supports-loongarch.html?lang=en" data-lang="en">"LoongArch Has Arrived Around Us" — IPFire Officially Supports LoongArch</a>
                     <a href="2026-10-28-ipfire-officially-supports-loongarch.html?lang=zh" data-lang="zh">"龙架构已来到我们身边"——IPFire 正式支持龙架构</a>
                 </h2>
