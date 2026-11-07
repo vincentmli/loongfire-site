@@ -9,76 +9,53 @@
     <!-- Main styles -->
     <link rel="stylesheet" href="style.css">
     <style>
-        /* 域名声明横幅样式 */
-        .domain-statement {
-            background: #8b0000;
-            color: #fff;
-            padding: 12px 20px;
-            text-align: center;
-            font-size: 0.95rem;
-            border-bottom: 3px solid #ff6b6b;
-            position: relative;
-            z-index: 100;
-        }
-        .domain-statement a {
-            color: #ffd700;
-            text-decoration: underline;
-            font-weight: bold;
-        }
-        .domain-statement a:hover {
-            color: #fff;
-        }
-        .domain-statement .warning-icon {
-            margin-right: 10px;
-            font-size: 1.2rem;
-            animation: blink-warning 1s infinite;
-        }
-        @keyframes blink-warning {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-        .domain-statement .highlight-domain {
-            background: rgba(255, 215, 0, 0.2);
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-weight: bold;
-            color: #ffd700;
-        }
-        @media (max-width: 768px) {
-            .domain-statement {
-                font-size: 0.8rem;
-                padding: 10px 12px;
-            }
-        }
+/* 架构与功能支持提示样式（信息型，非警告） */
+.info-statement {
+    background: #1f3a5f;
+    color: #eaf2fb;
+    padding: 10px 20px;
+    text-align: center;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    border-bottom: 3px solid #4a90d9;
+    position: relative;
+    z-index: 100;
+}
+.info-statement .info-icon {
+    margin-right: 8px;
+    font-size: 1.05rem;
+    color: #9cc7f0;
+}
+.info-statement .highlight-domain {
+    background: rgba(156, 199, 240, 0.18);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    color: #cfe4fa;
+}
+@media (max-width: 768px) {
+    .info-statement {
+        font-size: 0.78rem;
+        padding: 9px 12px;
+    }
+}
     </style>
 </head>
 <body class="lang-en">
-    <!-- ============ 域名声明横幅 ============ -->
-    <!--div class="domain-statement">
-        <span class="warning-icon"><i class="fas fa-exclamation-triangle"></i></span>
-        <span data-lang="en">
-            <strong>⚠️ OFFICIAL DOMAIN NOTICE:</strong> 
-            <span class="highlight-domain">loongfire.com</span> and 
-            <span class="highlight-domain">loongfire.net</span> are 
-            <strong>NOT</strong> official domains of the LoongFire project. 
-            They are unauthorized and redirected to this site without permission. 
-            The <strong>only official domain</strong> is 
-            <a href="https://www.bpfire.net" target="_blank">bpfire.net</a>. 
-            Please verify before trusting any content. 
-            <i class="fas fa-shield-alt" style="margin-left:8px;"></i>
-        </span>
-        <span data-lang="zh">
-            <strong>⚠️ 官方域名声明：</strong> 
-            <span class="highlight-domain">loongfire.com</span> 和 
-            <span class="highlight-domain">loongfire.net</span> 
-            <strong>并非</strong> LoongFire 项目的官方域名。 
-            它们未经授权，被擅自重定向至本站。 
-            <strong>唯一官方域名</strong>为 
-            <a href="https://www.bpfire.net" target="_blank">bpfire.net</a>。 
-            请用户注意甄别，谨防风险。 
-            <i class="fas fa-shield-alt" style="margin-left:8px;"></i>
-        </span>
-    </div-->
+
+	<!-- ============ 架构与功能支持提示 ============ -->
+<div class="info-statement">
+    <span class="info-icon"><i class="fas fa-circle-info"></i></span>
+    <span data-lang="en">
+        <strong>About LoongFire:</strong> this is the <span class="highlight-domain">LoongArch</span> port of IPFire —
+        our focus is bringing IPFire and eBPF to Loongson hardware. The full IPFire feature set,
+        plus eBPF/XDP support, also continues to work on <span class="highlight-domain">x86_64</span>
+        for users.</span>
+    <span data-lang="zh">
+        <strong>关于 LoongFire：</strong>本项目是 IPFire 的 <span class="highlight-domain">龙架构（LoongArch）</span> 移植版，
+        我们专注于将 IPFire 与 eBPF 带到龙芯硬件。IPFire 的完整功能集以及 eBPF/XDP 支持，
+        同样继续在 <span class="highlight-domain">x86_64</span> 上可用，供用户使用。</span>
+</div>
 
     <!-- header -->
     <header class="header">
@@ -118,6 +95,7 @@
                     <a href="https://ipfire.org/" target="_blank"><span data-lang="en">IPFire Docs</span><span data-lang="zh">IPFire 文档</span></a>
                     <a href="https://ebpf.io/" target="_blank"><span data-lang="en">eBPF.io</span><span data-lang="zh">eBPF 官网</span></a>
                     <a href="https://github.com/vincentmli/loongfire" target="_blank"><span data-lang="en">GitHub</span><span data-lang="zh">GitHub</span></a>
+                    <a href="https://gitee.com/loongfire" target="_blank"><span data-lang="en">Gitee</span><span data-lang="zh">Gitee</span></a>
                 </div>
             </li>
 
