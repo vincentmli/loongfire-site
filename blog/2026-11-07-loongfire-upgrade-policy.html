@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LoongFire Upgrade Policy: Backup, Fresh Install, Restore · LoongFire Blog</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .story-wrap { max-width: 900px; margin: 0 auto; padding: 2rem 1.2rem 4rem; }
+        .story-hero { text-align: center; margin-bottom: 2rem; padding-bottom: 1.4rem; border-bottom: 2px solid #f0e4cc; }
+        .story-hero h1 { color: #1f2f34; font-size: 1.9rem; line-height: 1.35; margin-bottom: .6rem; }
+        .story-hero .subtitle { color: #6b5f4e; font-size: 1rem; }
+        .story-meta { font-size: .85rem; color: #8a7c67; margin-top: .9rem; }
+        .story-meta i { margin-right: .3rem; }
+        .story-tags { margin-top: .8rem; }
+        .story-tag {
+            display: inline-block; font-size: .75rem; padding: 2px 9px;
+            background: #f0e4cc; color: #7a5a1a; border-radius: 12px; margin: 0 .3rem;
+        }
+        .story-card {
+            background: #fffdf7; border: 1px solid #e6dcc8; border-radius: 12px;
+            padding: 1.6rem 1.8rem; margin: 1.6rem 0;
+            box-shadow: 0 2px 10px rgba(60,45,20,.06);
+        }
+        .story-card h2 { color: #8b0000; font-size: 1.3rem; margin: 0 0 .9rem; border-bottom: 2px solid #f0e4cc; padding-bottom: .5rem; }
+        .story-card h3 { color: #1f2f34; font-size: 1.05rem; margin: 1.2rem 0 .4rem; }
+        .story-card p { line-height: 1.75; color: #3a3126; margin: .7rem 0; }
+        .story-card ul, .story-card ol { line-height: 1.75; color: #3a3126; margin: .6rem 0 .6rem 1.4rem; }
+        .story-card li { margin: .35rem 0; }
+        .story-card a { color: #a35f1a; text-decoration: none; border-bottom: 1px dotted #b87d38; }
+        .story-card a:hover { color: #8b0000; }
+        .story-card code { background: #f3ece0; padding: 1px 6px; border-radius: 4px; font-size: .9em; color: #7a2e2e; }
+        .callout { background: #fff4e0; border-left: 4px solid #d9a441; padding: .9rem 1.2rem; border-radius: 6px; margin: 1rem 0; }
+        .callout-danger { background: #fdecec; border-left-color: #c0392b; }
+        .callout-info { background: #eaf3fb; border-left-color: #3a7ca5; }
+        .post-nav { display: flex; justify-content: space-between; margin: 2.5rem 0 0; font-size: .9rem; }
+        .post-nav a { color: #a35f1a; text-decoration: none; border-bottom: 1px dotted #b87d38; }
+        body.lang-en [data-lang="zh"], body.lang-zh [data-lang="en"] { display: none !important; }
+    </style>
+    <!-- Early language application to avoid flash of bilingual content -->
+    <script>
+    (function () {
+        try {
+            var lang = new URLSearchParams(location.search).get('lang')
+                    || localStorage.getItem('loongfire-lang') || 'en';
+            if (lang !== 'zh') lang = 'en';
+            document.documentElement.className = 'lang-' + lang;
+            document.addEventListener('DOMContentLoaded', function () {
+                document.body.classList.remove('lang-en', 'lang-zh');
+                document.body.classList.add('lang-' + lang);
+                document.documentElement.lang = (lang === 'zh' ? 'zh-CN' : 'en');
+                try { localStorage.setItem('loongfire-lang', lang); } catch (e) {}
+            });
+        } catch (e) {}
+    })();
+    </script>
+</head>
+<body class="lang-en">
+
+    <header class="header">
+        <div class="logo-area">
+            <span class="logo-icon"><i class="fas fa-dragon"></i></span>
+            <span class="logo-text">
+                LoongFire <small>· 龙火</small>
+                <small style="font-weight:300; font-size:0.9rem; margin-left:0.3rem;" data-lang="en">firewall · eBPF</small>
+                <small style="font-weight:300; font-size:0.9rem; margin-left:0.3rem;" data-lang="zh">防火墙 · eBPF</small>
+            </span>
+        </div>
+        <button class="lang-toggle" id="langToggle">
+            <i class="fas fa-globe"></i>
+            <span data-lang="en">EN / 中文</span>
+            <span data-lang="zh">中文 / EN</span>
+        </button>
+    </header>
+
+    <nav class="navbar">
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="../index.html" class="nav-link"><i class="fas fa-home"></i> <span data-lang="en">Home</span><span data-lang="zh">首页</span></a></li>
+            <li class="nav-item dropdown">
+                <a href="../index.html#project" class="nav-link"><i class="fas fa-info-circle"></i> <span data-lang="en">About</span><span data-lang="zh">关于</span></a>
+                <div class="dropdown-content">
+                    <a href="../index.html#project"><span data-lang="en">Project LoongFire</span><span data-lang="zh">LoongFire 项目</span></a>
+                    <a href="../index.html#loongson-port"><span data-lang="en">Loongson Port</span><span data-lang="zh">龙芯移植</span></a>
+                    <a href="../index.html#team"><span data-lang="en">Team</span><span data-lang="zh">团队</span></a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a href="#" class="nav-link"><i class="fas fa-book-open"></i> <span data-lang="en">Resources</span><span data-lang="zh">资源</span></a>
+                <div class="dropdown-content">
+                    <a href="https://ipfire.org/" target="_blank"><span data-lang="en">IPFire Docs</span><span data-lang="zh">IPFire 文档</span></a>
+                    <a href="https://ebpf.io/" target="_blank"><span data-lang="en">eBPF.io</span><span data-lang="zh">eBPF 官网</span></a>
+                    <a href="https://github.com/vincentmli/loongfire" target="_blank"><span data-lang="en">GitHub</span><span data-lang="zh">GitHub</span></a>
+                </div>
+            </li>
+            <li class="nav-item"><a href="index.html" class="nav-link"><i class="fas fa-pen-nib"></i> <span data-lang="en">Blog</span><span data-lang="zh">博客</span></a></li>
+            <li class="nav-item dropdown">
+                <a href="#" class="nav-link"><i class="fas fa-download"></i> <span data-lang="en">Download</span><span data-lang="zh">下载</span></a>
+                <div class="dropdown-content">
+                    <a href="https://www.bpfire.net/download/loongfire/images_loongarch64/" target="_blank"><span data-lang="en">LoongArch</span><span data-lang="zh">龙架构</span></a>
+                    <a href="https://www.bpfire.net/download/loongfire/images_x86_64/" target="_blank"><span data-lang="en">X86_64</span><span data-lang="zh">X86_64</span></a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a href="#" class="nav-link"><i class="fas fa-play"></i> <span data-lang="en">Demo</span><span data-lang="zh">演示</span></a>
+                <div class="dropdown-content">
+                    <a href="https://youtu.be/1pdNgoP-Kho?si=ar517D0sQq7gYv2_" target="_blank"><span data-lang="en">Youtube Demo Video</span><span data-lang="zh">油管演示视频</span></a>
+                    <a href="https://youtu.be/rVHkBf1HB7Y" target="_blank"><span data-lang="en">Loongson Mini PC Demo</span><span data-lang="zh">龙芯迷你 PC 演示</span></a>
+                    <a href="https://space.bilibili.com/622328985" target="_blank"><span data-lang="en">Bilibili Video collections</span><span data-lang="zh">Bilibili 视频集</span></a>
+                </div>
+            </li>
+            <li class="nav-item"><a href="../index.html#contactSection" class="nav-link"><i class="fas fa-envelope"></i> <span data-lang="en">Contact</span><span data-lang="zh">联系</span></a></li>
+        </ul>
+    </nav>
+
+    <main class="story-wrap">
+        <!-- story hero -->
+        <div class="story-hero">
+            <h1 data-lang="en">LoongFire Upgrade Policy: Backup, Fresh Install, Restore</h1>
+            <h1 data-lang="zh">LoongFire 升级策略：备份、全新安装、恢复</h1>
+            <p class="subtitle" data-lang="en">Why LoongFire doesn't support in-place upgrades — and why that's an honest choice, not an oversight.</p>
+            <p class="subtitle" data-lang="zh">为什么 LoongFire 不支持原地升级——以及为什么这是诚实的取舍，而非疏忽。</p>
+            <p class="story-meta">
+                <i class="fas fa-calendar-alt"></i>
+                <span data-lang="en">2026-11-07</span><span data-lang="zh">2026-11-07</span>
+                <span style="margin:0 .4rem;">·</span>
+                <i class="fas fa-users"></i>
+                <span data-lang="en">LoongFire Team</span><span data-lang="zh">LoongFire 团队</span>
+                <span style="margin:0 .4rem;">·</span>
+                <i class="fas fa-cogs"></i>
+                <span data-lang="en">policy</span><span data-lang="zh">策略</span>
+            </p>
+            <div class="story-tags">
+                <span class="story-tag">upgrade</span>
+                <span class="story-tag">backup</span>
+                <span class="story-tag">policy</span>
+                <span class="story-tag">operations</span>
+            </div>
+        </div>
+
+        <!-- ===================== ENGLISH ===================== -->
+        <div data-lang="en">
+            <div class="story-card">
+                <h2><i class="fas fa-balance-scale"></i> Why LoongFire Doesn't Support In-Place Upgrades</h2>
+                <p>LoongFire is a community-driven firewall distribution. Like any project with limited resources, we have to make honest choices about what we can support well — and what we can't.</p>
+                <p>One of those choices is this: <b>LoongFire does not provide in-place upgrades on existing installations.</b> Instead, the supported path for moving to a new release is:</p>
+                <ol>
+                    <li>Back up your configuration</li>
+                    <li>Perform a fresh install</li>
+                    <li>Restore your backup</li>
+                </ol>
+                <p>This is a deliberate policy, not an oversight. Here's why.</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-server"></i> The Constraint</h2>
+                <p>Supporting in-place upgrades means hosting software repositories for every version we've ever released, so that users on older releases can still fetch the packages they need to step forward. That requires storage, bandwidth, and the engineering effort to maintain and test upgrade paths between every version pair.</p>
+                <p>LoongFire doesn't have those resources. Rather than offer an upgrade path we can't test properly — and risk leaving users stranded halfway through a broken migration — we've chosen a model we can support reliably.</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-list-check"></i> The Recommended Procedure</h2>
+
+                <h3>Before you begin</h3>
+                <ul>
+                    <li>Export your configuration backup and verify it exists and is readable</li>
+                    <li>Store it somewhere other than the device you're about to reinstall (network share, USB stick, another machine)</li>
+                    <li>Note any customisations: custom cron users, firewall rules in <code>firewall.local</code>, add-on configurations, certificates, VPN keys</li>
+                    <li>Have your install media ready</li>
+                </ul>
+
+                <h3>Install</h3>
+                <ul>
+                    <li>Perform a clean installation of the new LoongFire release</li>
+                    <li>Complete the basic setup so the web interface is reachable</li>
+                </ul>
+
+                <h3>Restore</h3>
+                <ul>
+                    <li>Upload your configuration backup through the web interface</li>
+                    <li>Restore the system</li>
+                    <li>Validate: check firewall rules, VPN tunnels, DHCP/DNS, custom scripts, cron jobs, and add-ons are all present and working</li>
+                </ul>
+
+                <h3>After</h3>
+                <ul>
+                    <li>Confirm connectivity and services</li>
+                    <li>Keep the backup until you're satisfied everything is running correctly</li>
+                </ul>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-clone"></i> Optional: Staged Rollout with a Spare Device</h2>
+                <p>If you have a spare device — or if the site is critical enough to justify keeping one — you can reduce production downtime by staging the work before cutover:</p>
+                <ol>
+                    <li>On the spare device, perform the fresh install, restore the backup, and run your full validation outside the production window.</li>
+                    <li>Confirm the restored system is working correctly, including any hardware-specific configuration.</li>
+                    <li>At cutover, swap the pre-staged device into production. Test the cutover itself (addressing, cabling, any hardware-specific settings) so the swap goes smoothly.</li>
+                </ol>
+                <p>This moves the time-consuming and failure-prone steps out of the production window, leaving only a short swap. It doesn't remove downtime entirely — you still need a cutover — but it turns the upgrade into a brief, predictable change rather than an extended maintenance event. For critical sites, keeping a pre-staged spare is a sensible part of this policy.</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-thumbs-up"></i> Pros</h2>
+                <ul>
+                    <li><b>Reproducible, clean state</b> — no accumulated cruft, no half-migrated configs, no leftover files from previous versions</li>
+                    <li><b>Smaller repository footprint</b> — we only need to host the current release, which keeps the project sustainable</li>
+                    <li><b>Simpler and better-tested QA</b> — we test "install + restore," not every possible upgrade permutation</li>
+                    <li><b>Reliable fallback by design</b> — restoring a known-good backup is a mechanical recovery job, not guesswork. Users who follow good backup discipline report smooth, low-drama recoveries.</li>
+                    <li><b>A natural hardware-hygiene moment</b> — rebuilding is a good time to notice failing disks, cables, or other hardware quietly degrading</li>
+                    <li><b>Predictable support</b> — when something goes wrong, we know the state you started from</li>
+                    <li><b>Downtime can be minimised</b> — with a spare device, most of the work happens before cutover, leaving only a short swap in the production window</li>
+                </ul>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-triangle-exclamation"></i> Cons</h2>
+                <ul>
+                    <li><b>Higher downtime than an in-place upgrade</b> — a fresh install plus restore takes longer than an in-place upgrade
+                        <ul>
+                            <li><i>Mitigation:</i> stage the work on a spare device first, then swap it into production. This moves the time-consuming, failure-prone steps out of the production window, leaving only a short cutover. See "Staged Rollout" above. It doesn't eliminate downtime entirely, and you should test the cutover itself so the swap goes smoothly.</li>
+                        </ul>
+                    </li>
+                    <li><b>Backup completeness is load-bearing</b> — anything not captured in the backup is lost. You need to know what your backup covers and what it doesn't</li>
+                    <li><b>Restore must be rehearsed</b> — assuming the backup will restore cleanly is not the same as having tested it. Practise the procedure before you need it</li>
+                    <li><b>Manual re-customisation may be needed</b> — some hand-edited files or third-party tweaks may not be captured automatically</li>
+                    <li><b>Not a substitute for hardware monitoring</b> — a healthy-looking disk can still sit behind a failing cable. Pair this policy with SMART and RAID alerting</li>
+                    <li><b>Requires discipline from users</b> — the model only works if backups are taken regularly and stored safely</li>
+                    <li><b>Staging needs spare hardware</b> — the staged-rollout option only helps if you have (or can justify) a spare device</li>
+                </ul>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-flag-checkered"></i> The Honest Framing</h2>
+                <p>This is a resource-driven choice, not a claim that in-place upgrades are inherently bad. Plenty of projects do them well. We're being upfront: given our constraints, backup → fresh install → restore is the model we can actually support, test, and stand behind. We'd rather offer a procedure that works than an upgrade path that might not.</p>
+                <p><b>If you follow the backup discipline, a rebuild becomes a routine job rather than a rescue mission. That's the trade we've made, and we think it's the right one for LoongFire.</b></p>
+            </div>
+        </div>
+
+        <!-- ===================== 中文 ===================== -->
+        <div data-lang="zh">
+            <div class="story-card">
+                <h2><i class="fas fa-balance-scale"></i> 为什么 LoongFire 不支持原地升级</h2>
+                <p>LoongFire 是一个社区驱动的防火墙发行版。和任何资源有限的项目一样，我们必须诚实地选择哪些事情能够做好、哪些做不到。</p>
+                <p>其中一项选择就是：<b>LoongFire 不为现有安装提供原地升级。</b>迁移到新版本的支持路径是：</p>
+                <ol>
+                    <li>备份配置</li>
+                    <li>全新安装</li>
+                    <li>恢复备份</li>
+                </ol>
+                <p>这是一项有意的策略，而非疏忽。原因如下。</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-server"></i> 约束条件</h2>
+                <p>支持原地升级意味着要为我们发布过的每一个版本托管软件仓库，以便旧版本用户仍能获取升级所需的软件包。这需要存储空间、带宽，以及维护和测试每两个版本之间升级路径的工程投入。</p>
+                <p>LoongFire 没有这些资源。与其提供一个我们无法充分测试的升级路径——并冒着让用户在迁移中途陷入困境的风险——我们选择了一个能够可靠支持的模式。</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-list-check"></i> 推荐流程</h2>
+
+                <h3>开始之前</h3>
+                <ul>
+                    <li>导出配置备份，并确认文件存在且可读</li>
+                    <li>将备份存放在即将重装的设备之外（网络共享、U 盘、另一台机器）</li>
+                    <li>记录所有自定义内容：自定义 cron 用户、<code>firewall.local</code> 中的防火墙规则、插件配置、证书、VPN 密钥</li>
+                    <li>准备好安装介质</li>
+                </ul>
+
+                <h3>安装</h3>
+                <ul>
+                    <li>全新安装新版 LoongFire</li>
+                    <li>完成基本设置，确保 Web 界面可访问</li>
+                </ul>
+
+                <h3>恢复</h3>
+                <ul>
+                    <li>通过 Web 界面上传配置备份</li>
+                    <li>恢复系统</li>
+                    <li>验证：检查防火墙规则、VPN 隧道、DHCP/DNS、自定义脚本、cron 任务和插件是否齐全并正常工作</li>
+                </ul>
+
+                <h3>之后</h3>
+                <ul>
+                    <li>确认连通性和服务正常</li>
+                    <li>在确认一切正常之前保留备份</li>
+                </ul>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-clone"></i> 可选：使用备用设备分阶段实施</h2>
+                <p>如果你有备用设备——或者站点足够关键，值得常备一台——可以通过在切换前分阶段完成工作来减少生产停机：</p>
+                <ol>
+                    <li>在备用设备上，在生产窗口之外完成全新安装、恢复备份，并执行完整验证。</li>
+                    <li>确认恢复后的系统工作正常，包括任何硬件相关的配置。</li>
+                    <li>切换时，将预先准备好的设备换入生产环境。测试切换过程本身（地址、线缆、任何硬件相关设置），确保替换顺利进行。</li>
+                </ol>
+                <p>这样可以把耗时且易出错的步骤移出生产窗口，只留下短暂的替换。它不能完全消除停机——你仍然需要切换——但可以把升级变成一次简短、可预测的变更，而不是一次漫长的维护事件。对于关键站点，常备一台预先准备好的备用设备是这项策略中合理的一部分。</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-thumbs-up"></i> 优点</h2>
+                <ul>
+                    <li><b>可复现的干净状态</b>——没有累积的冗余、没有迁移到一半的配置、没有旧版本残留文件</li>
+                    <li><b>更小的仓库占用</b>——只需托管当前版本，项目更可持续</li>
+                    <li><b>更简单、更充分的测试</b>——我们测试的是"安装 + 恢复"，而不是所有可能的升级组合</li>
+                    <li><b>设计上就有可靠的回退方案</b>——从已知良好的备份恢复是一项机械性的工作，而非猜测。遵循良好备份习惯的用户反馈恢复过程平稳、少有波折。</li>
+                    <li><b>天然的硬件检查时机</b>——重装是发现磁盘、线缆或其他硬件悄悄劣化的好机会</li>
+                    <li><b>可预测的支持</b>——出问题时，我们清楚你从什么状态开始</li>
+                    <li><b>停机时间可以最小化</b>——借助备用设备，大部分工作在切换前完成，生产窗口中只留下短暂的替换</li>
+                </ul>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-triangle-exclamation"></i> 缺点</h2>
+                <ul>
+                    <li><b>停机时间比原地升级更长</b>——全新安装加恢复比原地升级耗时更多
+                        <ul>
+                            <li><i>缓解措施：</i>先在备用设备上分阶段完成工作，再换入生产环境。这样可以把耗时且易出错的步骤移出生产窗口，只留下短暂的切换。参见上文"分阶段实施"。它不能完全消除停机，而且你需要测试切换过程本身，确保替换顺利进行。</li>
+                        </ul>
+                    </li>
+                    <li><b>备份完整性至关重要</b>——备份未覆盖的内容都会丢失。你需要清楚备份包含什么、不包含什么</li>
+                    <li><b>恢复流程必须演练</b>——假设备份能顺利恢复，和实际测试过并不是一回事。请在需要之前先练习一遍</li>
+                    <li><b>可能需要手动重新自定义</b>——某些手工编辑的文件或第三方调整可能不会被自动捕获</li>
+                    <li><b>不能替代硬件监控</b>——看起来健康的磁盘，背后可能是一条正在劣化的线缆。请将此策略与 SMART 和 RAID 告警配合使用</li>
+                    <li><b>需要用户自律</b>——只有定期备份并妥善保存，这个模式才成立</li>
+                    <li><b>分阶段实施需要备用硬件</b>——只有在拥有（或能够证明需要）备用设备时，分阶段方案才有帮助</li>
+                </ul>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-flag-checkered"></i> 诚实的定位</h2>
+                <p>这是一个由资源决定的取舍，而非声称原地升级本身不好。很多项目做得很好。我们坦率说明：在现有约束下，备份 → 全新安装 → 恢复是我们真正能够支持、测试并负责的模式。我们宁愿提供一个可行的流程，也不愿提供一条可能行不通的升级路径。</p>
+                <p><b>如果你遵循备份纪律，重装就会成为一项常规工作，而不是一次救援行动。这就是我们做出的取舍，我们认为这对 LoongFire 是正确的。</b></p>
+            </div>
+        </div>
+
+        <div class="post-nav">
+            <a href="index.html"><i class="fas fa-arrow-left"></i>
+                <span data-lang="en">All posts</span><span data-lang="zh">全部文章</span>
+            </a>
+            <a href="../index.html">
+                <span data-lang="en">Home</span><span data-lang="zh">首页</span> <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>
+            <i class="fas fa-dragon"></i> LoongFire · 龙火 &nbsp;|&nbsp;
+            <span data-lang="en">Open Source Firewall for LoongArch</span>
+            <span data-lang="zh">龙架构开源防火墙</span>
+            <span style="margin:0 0.5rem;">·</span>
+            <span data-lang="en">© 2026 LoongFire Project</span>
+            <span data-lang="zh">© 2026 LoongFire 项目</span>
+        </p>
+    </footer>
+
+    <script>
+    (function () {
+        var toggle = document.getElementById('langToggle');
+        if (toggle) {
+            toggle.addEventListener('click', function () {
+                setTimeout(function () {
+                    var current = document.body.classList.contains('lang-zh') ? 'zh' : 'en';
+                    try { localStorage.setItem('loongfire-lang', current); } catch (e) {}
+                }, 0);
+            });
+        }
+    })();
+    </script>
+    <script src="../script.js"></script>
+</body>
+</html>
