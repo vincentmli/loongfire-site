@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Letter Case Mystery: IPFire Boot Failure on Loongson 3A6000 · LoongFire Blog</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .story-wrap { max-width: 900px; margin: 0 auto; padding: 2rem 1.2rem 4rem; }
+        .story-hero { text-align: center; margin-bottom: 2rem; padding-bottom: 1.4rem; border-bottom: 2px solid #f0e4cc; }
+        .story-hero h1 { color: #1f2f34; font-size: 1.9rem; line-height: 1.35; margin-bottom: .6rem; }
+        .story-hero .subtitle { color: #6b5f4e; font-size: 1rem; }
+        .story-meta { font-size: .85rem; color: #8a7c67; margin-top: .9rem; }
+        .story-meta i { margin-right: .3rem; }
+        .story-tags { margin-top: .8rem; }
+        .story-tag {
+            display: inline-block; font-size: .75rem; padding: 2px 9px;
+            background: #f0e4cc; color: #7a5a1a; border-radius: 12px; margin: 0 .3rem;
+        }
+        .story-card {
+            background: #fffdf7; border: 1px solid #e6dcc8; border-radius: 12px;
+            padding: 1.6rem 1.8rem; margin: 1.6rem 0;
+            box-shadow: 0 2px 10px rgba(60,45,20,.06);
+        }
+        .story-card h2 { color: #8b0000; font-size: 1.3rem; margin: 0 0 .9rem; border-bottom: 2px solid #f0e4cc; padding-bottom: .5rem; }
+        .story-card h3 { color: #1f2f34; font-size: 1.05rem; margin: 1.2rem 0 .4rem; }
+        .story-card p { line-height: 1.75; color: #3a3126; margin: .7rem 0; }
+        .story-card ul { line-height: 1.75; color: #3a3126; margin: .6rem 0 .6rem 1.2rem; }
+        .story-card a { color: #a35f1a; text-decoration: none; border-bottom: 1px dotted #b87d38; }
+        .story-card a:hover { color: #8b0000; }
+        .story-card code { background: #f3ece0; padding: 1px 6px; border-radius: 4px; font-size: .9em; color: #7a2e2e; }
+        .story-card pre {
+            background: #2b2b2b; color: #f1e9d8; padding: 1rem 1.2rem;
+            border-radius: 8px; overflow-x: auto; font-size: .88rem; line-height: 1.6;
+        }
+        .story-card pre code { background: none; color: inherit; padding: 0; }
+        .callout { background: #fff4e0; border-left: 4px solid #d9a441; padding: .9rem 1.2rem; border-radius: 6px; margin: 1rem 0; }
+        .callout-danger { background: #fdecec; border-left-color: #c0392b; }
+        .callout-info { background: #eaf3fb; border-left-color: #3a7ca5; }
+        .post-nav { display: flex; justify-content: space-between; margin: 2.5rem 0 0; font-size: .9rem; }
+        .post-nav a { color: #a35f1a; text-decoration: none; border-bottom: 1px dotted #b87d38; }
+        body.lang-en [data-lang="zh"], body.lang-zh [data-lang="en"] { display: none !important; }
+    </style>
+    <!-- Early language application to avoid flash of bilingual content -->
+    <script>
+    (function () {
+        try {
+            var lang = new URLSearchParams(location.search).get('lang')
+                    || localStorage.getItem('loongfire-lang') || 'en';
+            if (lang !== 'zh') lang = 'en';
+            document.documentElement.className = 'lang-' + lang;
+            document.addEventListener('DOMContentLoaded', function () {
+                document.body.classList.remove('lang-en', 'lang-zh');
+                document.body.classList.add('lang-' + lang);
+                document.documentElement.lang = (lang === 'zh' ? 'zh-CN' : 'en');
+                try { localStorage.setItem('loongfire-lang', lang); } catch (e) {}
+            });
+        } catch (e) {}
+    })();
+    </script>
+</head>
+<body class="lang-en">
+
+    <header class="header">
+        <div class="logo-area">
+            <span class="logo-icon"><i class="fas fa-dragon"></i></span>
+            <span class="logo-text">
+                LoongFire <small>· 龙火</small>
+                <small style="font-weight:300; font-size:0.9rem; margin-left:0.3rem;" data-lang="en">firewall · eBPF</small>
+                <small style="font-weight:300; font-size:0.9rem; margin-left:0.3rem;" data-lang="zh">防火墙 · eBPF</small>
+            </span>
+        </div>
+        <button class="lang-toggle" id="langToggle">
+            <i class="fas fa-globe"></i>
+            <span data-lang="en">EN / 中文</span>
+            <span data-lang="zh">中文 / EN</span>
+        </button>
+    </header>
+
+    <nav class="navbar">
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="../index.html" class="nav-link"><i class="fas fa-home"></i> <span data-lang="en">Home</span><span data-lang="zh">首页</span></a></li>
+            <li class="nav-item dropdown">
+                <a href="../index.html#project" class="nav-link"><i class="fas fa-info-circle"></i> <span data-lang="en">About</span><span data-lang="zh">关于</span></a>
+                <div class="dropdown-content">
+                    <a href="../index.html#project"><span data-lang="en">Project LoongFire</span><span data-lang="zh">LoongFire 项目</span></a>
+                    <a href="../index.html#loongson-port"><span data-lang="en">Loongson Port</span><span data-lang="zh">龙芯移植</span></a>
+                    <a href="../index.html#team"><span data-lang="en">Team</span><span data-lang="zh">团队</span></a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a href="#" class="nav-link"><i class="fas fa-book-open"></i> <span data-lang="en">Resources</span><span data-lang="zh">资源</span></a>
+                <div class="dropdown-content">
+                    <a href="https://ipfire.org/" target="_blank"><span data-lang="en">IPFire Docs</span><span data-lang="zh">IPFire 文档</span></a>
+                    <a href="https://ebpf.io/" target="_blank"><span data-lang="en">eBPF.io</span><span data-lang="zh">eBPF 官网</span></a>
+                    <a href="https://github.com/vincentmli/loongfire" target="_blank"><span data-lang="en">GitHub</span><span data-lang="zh">GitHub</span></a>
+                </div>
+            </li>
+            <li class="nav-item"><a href="index.html" class="nav-link"><i class="fas fa-pen-nib"></i> <span data-lang="en">Blog</span><span data-lang="zh">博客</span></a></li>
+            <li class="nav-item dropdown">
+                <a href="#" class="nav-link"><i class="fas fa-download"></i> <span data-lang="en">Download</span><span data-lang="zh">下载</span></a>
+                <div class="dropdown-content">
+                    <a href="https://www.bpfire.net/download/loongfire/images_loongarch64/" target="_blank"><span data-lang="en">LoongArch</span><span data-lang="zh">龙架构</span></a>
+                    <a href="https://www.bpfire.net/download/loongfire/images_x86_64/" target="_blank"><span data-lang="en">X86_64</span><span data-lang="zh">X86_64</span></a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a href="#" class="nav-link"><i class="fas fa-play"></i> <span data-lang="en">Demo</span><span data-lang="zh">演示</span></a>
+                <div class="dropdown-content">
+                    <a href="https://youtu.be/1pdNgoP-Kho?si=ar517D0sQq7gYv2_" target="_blank"><span data-lang="en">Youtube Demo Video</span><span data-lang="zh">油管演示视频</span></a>
+                    <a href="https://youtu.be/rVHkBf1HB7Y" target="_blank"><span data-lang="en">Loongson Mini PC Demo</span><span data-lang="zh">龙芯迷你 PC 演示</span></a>
+                    <a href="https://space.bilibili.com/622328985" target="_blank"><span data-lang="en">Bilibili Video collections</span><span data-lang="zh">Bilibili 视频集</span></a>
+                </div>
+            </li>
+            <li class="nav-item"><a href="../index.html#contactSection" class="nav-link"><i class="fas fa-envelope"></i> <span data-lang="en">Contact</span><span data-lang="zh">联系</span></a></li>
+        </ul>
+    </nav>
+
+    <main class="story-wrap">
+        <!-- story hero -->
+        <div class="story-hero">
+            <h1 data-lang="en">A Letter Case Mystery: IPFire Boot Failure on Loongson 3A6000</h1>
+            <h1 data-lang="zh">一个字母的大小写：IPFire 在龙芯 3A6000 上的启动谜案</h1>
+            <p class="story-meta">
+                <i class="fas fa-calendar-alt"></i>
+                <span data-lang="en">2026-11-07</span><span data-lang="zh">2026-11-07</span>
+                <span style="margin:0 .4rem;">·</span>
+                <i class="fas fa-users"></i>
+                <span data-lang="en">LoongFire Team</span><span data-lang="zh">LoongFire 团队</span>
+                <span style="margin:0 .4rem;">·</span>
+                <i class="fas fa-microchip"></i>
+                <span data-lang="en">Loongson 3A6000</span><span data-lang="zh">龙芯 3A6000</span>
+            </p>
+            <div class="story-tags">
+                <span class="story-tag">LoongArch</span>
+                <span class="story-tag">IPFire</span>
+                <span class="story-tag">UEFI</span>
+                <span class="story-tag">ISO 9660</span>
+                <span class="story-tag">boot</span>
+            </div>
+        </div>
+
+        <!-- ===================== ENGLISH ===================== -->
+        <div data-lang="en">
+            <div class="story-card">
+                <h2><i class="fas fa-usb"></i> The Problem</h2>
+                <p>My <b>Morefine M700S</b> runs a Loongson 3A6000. I wrote the IPFire LoongArch ISO to a USB stick with <code>dd</code>, plugged it in, powered on the machine, and selected the USB drive from the boot menu — and nothing happened. The screen stayed on the boot device selection menu as if the USB stick didn't exist. This problem persisted for quite some time.</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-search"></i> The Initial Suspect: GRUB 2.16</h2>
+                <p>The IPFire ISO boot failure had been ongoing for a while. My first suspicion was IPFire's upgrade to GRUB 2.16. GRUB version changes often introduce boot path modifications, and IPFire's Bugzilla had reports of systems failing to boot after the 2.16 upgrade. To test this hypothesis, I spent considerable time syncing LoongFire (my own IPFire port for LoongArch) with IPFire's codebase, including GRUB versions and configurations. The result: LoongFire never reproduced the problem. Same GRUB, same architecture, yet one booted and the other didn't. The issue clearly wasn't GRUB itself.</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-lightbulb"></i> The Accidental Discovery: Case Difference</h2>
+                <p>The breakthrough came while working on something else. I happened to compare the <code>lfs/cdrom</code> files of LoongFire and IPFire, and noticed a subtle difference in how the EFI bootloader was named: <b>letter case</b>. LoongFire used all-uppercase <code>BOOTLOONGARCH64.EFI</code>, while IPFire used lowercase <code>bootLOONGARCH64.efi</code>. This made me suspect that the Loongson firmware might have a problem with case sensitivity when reading ISO 9660 filesystems.</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-envelope-open-text"></i> Finding the Root Cause: Debian Mailing List</h2>
+		<p>With this suspicion, I searched for information (with DeepSeek's assistance) and eventually found the key report on the <a href="https://lists.debian.org/debian-loongarch/2025/01/msg00024.html" target="_blank" rel="noopener">Debian LoongArch mailing list</a>. A 3A6000 (Morefine M700S) owner confirmed that actual Loongson firmware treats ISO 9660 filesystems <b>case-sensitively</b>, only recognizing the all-uppercase <code>EFI/BOOT/BOOTLOONGARCH64.EFI</code>. When written to a FAT32 partition instead, lowercase filenames work because FAT itself is case-insensitive. This explained why the <code>dd</code>-written USB produced no reaction at all after being selected in the boot menu — the firmware simply couldn't find the bootloader it was looking for.</p>
+                <p>GRUB upstream had also merged a patch in June 2024 switching the LoongArch removable EFI path to uppercase, precisely because Loongson firmware couldn't handle non-uppercase paths.</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-wrench"></i> The Fix</h2>
+                <p>In IPFire's <code>lfs/cdrom</code>, the EFI filename is constructed from <code>$(EFI_ARCH)</code>. The fix is to change only LoongArch, leaving other platforms untouched:</p>
+                <pre><code>ifeq "$(EFI_ARCH)" "LOONGARCH64"
+	EFI_BOOT_FILE = BOOTLOONGARCH64.EFI
+else
+	EFI_BOOT_FILE = boot$(EFI_ARCH).efi
+endif</code></pre>
+                <p>x86 keeps <code>bootx64.efi</code>, ARM keeps <code>bootaa64.efi</code>, and only LoongArch becomes all-uppercase. Uppercase is the standard UEFI naming convention anyway, and it works on devices unaffected by the firmware bug, so there's no downside.</p>
+                <p>The patch was tested on my Morefine M700S: rebuilt the ISO, wrote it with <code>dd</code>, rebooted, selected the USB drive from the boot menu, and the GRUB menu appeared as expected. The commit message documents the test hardware:</p>
+                <pre><code>Tested on a Morefine M700S (Loongson 3A6000).</code></pre>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-flag-checkered"></i> Conclusion</h2>
+                <p>If you're wrestling with a Loongson machine where "the USB is written, you selected it in the boot menu, and nothing happens," first rule out the firmware case-sensitivity bug. Better yet, simply make sure the EFI boot filename is capitalized — uppercase works across all firmware, so it's the safer default.</p>
+            </div>
+        </div>
+
+        <!-- ===================== 中文 ===================== -->
+        <div data-lang="zh">
+            <div class="story-card">
+                <h2><i class="fas fa-usb"></i> 问题</h2>
+                <p>我的 <b>Morefine M700S</b> 搭载龙芯 3A6000。把 IPFire 龙架构的 ISO 用 <code>dd</code> 写入 U 盘后，插入机器，开机，在启动菜单里选择从 U 盘启动——然后毫无反应，屏幕始终停留在启动盘选择界面，仿佛那个 U 盘根本不存在。这个问题困扰了我相当长一段时间。</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-search"></i> 起初的误判：GRUB 2.16</h2>
+                <p>IPFire 的 ISO 启动失败已经持续好一段时间了。我起初怀疑这和 IPFire 升级 GRUB 到 2.16 有关。毕竟 GRUB 版本更迭经常引入引导路径的变化，IPFire Bugzilla 上也有关于 GRUB 2.16 导致系统无法启动的报告。为了验证这个猜想，我花费了很多时间把 LoongFire（我自己维护的 IPFire 龙架构移植版本）和 IPFire 的代码同步，包括 GRUB 的版本和配置。但结果是：LoongFire 始终没有复现 IPFire 的问题。同样的 GRUB、同样的架构，一个能启动，一个不能。这说明问题不在 GRUB 本身。</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-lightbulb"></i> 意外发现：大小写差异</h2>
+                <p>转机出现在解决另一个问题的过程中。我偶然对比了 LoongFire 的 <code>lfs/cdrom</code> 和 IPFire 的 <code>lfs/cdrom</code>，注意到两者在 EFI 引导文件命名上存在一个细微的区别：<b>大小写</b>。LoongFire 用的是全大写的 <code>BOOTLOONGARCH64.EFI</code>，而 IPFire 用的是小写的 <code>bootLOONGARCH64.efi</code>。这个发现让我初步怀疑，龙芯固件对 ISO 9660 文件系统的大小写处理可能有问题。</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-envelope-open-text"></i> 找到根源：Debian 邮件列表</h2>
+		<p>带着这个怀疑，我在 DeepSeek 的帮助下检索相关信息，最终找到了 <a href="https://lists.debian.org/debian-loongarch/2025/01/msg00024.html" target="_blank" rel="noopener">Debian LoongArch 邮件列表</a>中的关键报告。有 3A6000（Morefine M700S）用户明确指出：龙芯实际固件在处理 ISO 9660 文件系统时是<b>大小写敏感的</b>，只识别全大写的 <code>EFI/BOOT/BOOTLOONGARCH64.EFI</code>；而如果用 FAT32 分区方式写入（文件系统本身不区分大小写），小写文件名反而能正常工作。这也解释了为什么 <code>dd</code> 写入的 U 盘在启动菜单里被选中后毫无反应——固件根本找不到它要的引导文件。</p>
+                <p>GRUB 上游也在 2024 年 6 月合并了相关补丁，将 LoongArch 可移动 EFI 镜像路径改为全大写，理由正是龙芯固件无法处理非大写路径。</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-wrench"></i> 修复方案</h2>
+                <p>IPFire 的 <code>lfs/cdrom</code> 中，EFI 文件名由 <code>$(EFI_ARCH)</code> 拼接生成。修复的关键是只改龙架构，不动其他平台：</p>
+                <pre><code>ifeq "$(EFI_ARCH)" "LOONGARTCH64"
+	EFI_BOOT_FILE = BOOTLOONGARCH64.EFI
+else
+	EFI_BOOT_FILE = boot$(EFI_ARCH).efi
+endif</code></pre>
+                <p>x86 仍然是 <code>bootx64.efi</code>，ARM 仍然是 <code>bootaa64.efi</code>，只有 LoongArch 变成全大写。全大写本身就是 UEFI 规范的标准命名形式，对不受该固件 bug 影响的设备同样有效，因此没有副作用。</p>
+                <p>补丁在我的 Morefine M700S 上测试通过：重新构建 ISO、<code>dd</code> 写入 U 盘、重启，在启动菜单中选择 U 盘后 GRUB 菜单如期出现。提交信息中也注明了测试机型：</p>
+                <pre><code>Tested on a Morefine M700S (Loongson 3A6000).</code></pre>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-flag-checkered"></i> 结语</h2>
+		<p>如果你也在龙芯机器上遇到"U 盘写好了、启动菜单里也选了，却毫无反应"的情况，请先排查是否踩中了固件的大小写敏感 bug。更稳妥的做法是：直接确保 EFI 引导文件名使用大写——大写形式对所有固件都有效，是更安全的默认选择。</p>
+            </div>
+        </div>
+
+        <div class="post-nav">
+            <a href="index.html"><i class="fas fa-arrow-left"></i>
+                <span data-lang="en">All posts</span><span data-lang="zh">全部文章</span>
+            </a>
+            <a href="../index.html">
+                <span data-lang="en">Home</span><span data-lang="zh">首页</span> <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>
+            <i class="fas fa-dragon"></i> LoongFire · 龙火 &nbsp;|&nbsp;
+            <span data-lang="en">Open Source Firewall for LoongArch</span>
+            <span data-lang="zh">龙架构开源防火墙</span>
+            <span style="margin:0 0.5rem;">·</span>
+            <span data-lang="en">© 2026 LoongFire Project</span>
+            <span data-lang="zh">© 2026 LoongFire 项目</span>
+        </p>
+    </footer>
+
+    <script>
+    (function () {
+        var toggle = document.getElementById('langToggle');
+        if (toggle) {
+            toggle.addEventListener('click', function () {
+                setTimeout(function () {
+                    var current = document.body.classList.contains('lang-zh') ? 'zh' : 'en';
+                    try { localStorage.setItem('loongfire-lang', current); } catch (e) {}
+                }, 0);
+            });
+        }
+    })();
+    </script>
+    <script src="../script.js"></script>
+</body>
+</html>

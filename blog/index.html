@@ -105,6 +105,31 @@
         <ul class="post-list">
             <li class="post-card">
                 <h2>
+                    <a href="2026-11-07-letter-case-ipfire-loongson-boot-mystery.html?lang=en" data-lang="en">A Letter Case Mystery: IPFire Boot Failure on Loongson 3A6000</a>
+                    <a href="2026-11-07-letter-case-ipfire-loongson-boot-mystery.html?lang=zh" data-lang="zh">一个字母的大小写：IPFire 在龙芯 3A6000 上的启动谜案</a>
+                </h2>
+                <p class="post-meta">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span data-lang="en">2026-11-07 · LoongFire Team</span>
+                    <span data-lang="zh">2026-11-07 · LoongFire 团队</span>
+                </p>
+                <p class="post-excerpt" data-lang="en">
+                    An IPFire ISO written to USB with dd refused to boot on a Loongson 3A6000 — the machine sat on the boot menu as if the stick didn't exist. The cause turned out to be a single letter's case: Loongson firmware reads ISO 9660 case-sensitively and only accepts the all-uppercase EFI/BOOT/BOOTLOONGARCH64.EFI.
+                </p>
+                <p class="post-excerpt" data-lang="zh">
+                    用 dd 写入 U 盘的 IPFire ISO 在龙芯 3A6000 上无法启动——机器停留在启动菜单，仿佛 U 盘根本不存在。根源竟然是一个字母的大小写：龙芯固件按大小写敏感方式读取 ISO 9660，只接受全大写的 EFI/BOOT/BOOTLOONGARCH64.EFI。
+                </p>
+                <div class="post-tags">
+                    <span class="post-tag">LoongArch</span>
+                    <span class="post-tag">IPFire</span>
+                    <span class="post-tag">UEFI</span>
+                    <span class="post-tag">ISO 9660</span>
+                    <span class="post-tag">boot</span>
+                </div>
+            </li>
+
+            <li class="post-card">
+                <h2>
                     <a href="2026-11-04-loongfire-xdp-synproxy-cve-2026-98432.html?lang=en" data-lang="en">LoongFire XDP SYNPROXY: An Efficient Stopgap for CVE-2026-98432</a>
                     <a href="2026-11-04-loongfire-xdp-synproxy-cve-2026-98432.html?lang=zh" data-lang="zh">LoongFire XDP SYNPROXY：针对 CVE-2026-98432 的高效临时缓解方案</a>
                 </h2>
