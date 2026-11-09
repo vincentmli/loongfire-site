@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LoongFire v2.29 (core205) Release Notes · LoongFire Blog</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .story-wrap { max-width: 900px; margin: 0 auto; padding: 2rem 1.2rem 4rem; }
+        .story-hero { text-align: center; margin-bottom: 2rem; padding-bottom: 1.4rem; border-bottom: 2px solid #f0e4cc; }
+        .story-hero h1 { color: #1f2f34; font-size: 1.9rem; line-height: 1.35; margin-bottom: .6rem; }
+        .story-hero .subtitle { color: #6b5f4e; font-size: 1rem; }
+        .story-meta { font-size: .85rem; color: #8a7c67; margin-top: .9rem; }
+        .story-meta i { margin-right: .3rem; }
+        .story-tags { margin-top: .8rem; }
+        .story-tag {
+            display: inline-block; font-size: .75rem; padding: 2px 9px;
+            background: #f0e4cc; color: #7a5a1a; border-radius: 12px; margin: 0 .3rem;
+        }
+        .story-card {
+            background: #fffdf7; border: 1px solid #e6dcc8; border-radius: 12px;
+            padding: 1.6rem 1.8rem; margin: 1.6rem 0;
+            box-shadow: 0 2px 10px rgba(60,45,20,.06);
+        }
+        .story-card h2 { color: #8b0000; font-size: 1.3rem; margin: 0 0 .9rem; border-bottom: 2px solid #f0e4cc; padding-bottom: .5rem; }
+        .story-card h3 { color: #1f2f34; font-size: 1.05rem; margin: 1.2rem 0 .4rem; }
+        .story-card p { line-height: 1.75; color: #3a3126; margin: .7rem 0; }
+        .story-card ul, .story-card ol { line-height: 1.75; color: #3a3126; margin: .6rem 0 .6rem 1.4rem; }
+        .story-card li { margin: .35rem 0; }
+        .story-card a { color: #a35f1a; text-decoration: none; border-bottom: 1px dotted #b87d38; }
+        .story-card a:hover { color: #8b0000; }
+        .story-card code { background: #f3ece0; padding: 1px 6px; border-radius: 4px; font-size: .9em; color: #7a2e2e; }
+        .story-card table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .92rem; }
+        .story-card th, .story-card td { border: 1px solid #e6dcc8; padding: .5rem .8rem; text-align: left; color: #3a3126; }
+        .story-card th { background: #f5ecd9; color: #6b4a1a; font-weight: 600; }
+        .story-card tr:nth-child(even) td { background: #fffdf7; }
+        .callout { background: #fff4e0; border-left: 4px solid #d9a441; padding: .9rem 1.2rem; border-radius: 6px; margin: 1rem 0; }
+        .callout-danger { background: #fdecec; border-left-color: #c0392b; }
+        .callout-info { background: #eaf3fb; border-left-color: #3a7ca5; }
+        .pkg-list { font-size: .9rem; color: #4a3c24; line-height: 1.7; }
+        .pkg-list b { color: #6b4a1a; }
+        .post-nav { display: flex; justify-content: space-between; margin: 2.5rem 0 0; font-size: .9rem; }
+        .post-nav a { color: #a35f1a; text-decoration: none; border-bottom: 1px dotted #b87d38; }
+        body.lang-en [data-lang="zh"], body.lang-zh [data-lang="en"] { display: none !important; }
+    </style>
+    <!-- Early language application to avoid flash of bilingual content -->
+    <script>
+    (function () {
+        try {
+            var lang = new URLSearchParams(location.search).get('lang')
+                    || localStorage.getItem('loongfire-lang') || 'en';
+            if (lang !== 'zh') lang = 'en';
+            document.documentElement.className = 'lang-' + lang;
+            document.addEventListener('DOMContentLoaded', function () {
+                document.body.classList.remove('lang-en', 'lang-zh');
+                document.body.classList.add('lang-' + lang);
+                document.documentElement.lang = (lang === 'zh' ? 'zh-CN' : 'en');
+                try { localStorage.setItem('loongfire-lang', lang); } catch (e) {}
+            });
+        } catch (e) {}
+    })();
+    </script>
+</head>
+<body class="lang-en">
+
+    <header class="header">
+        <div class="logo-area">
+            <span class="logo-icon"><i class="fas fa-dragon"></i></span>
+            <span class="logo-text">
+                LoongFire <small>· 龙火</small>
+                <small style="font-weight:300; font-size:0.9rem; margin-left:0.3rem;" data-lang="en">firewall · eBPF</small>
+                <small style="font-weight:300; font-size:0.9rem; margin-left:0.3rem;" data-lang="zh">防火墙 · eBPF</small>
+            </span>
+        </div>
+        <button class="lang-toggle" id="langToggle">
+            <i class="fas fa-globe"></i>
+            <span data-lang="en">EN / 中文</span>
+            <span data-lang="zh">中文 / EN</span>
+        </button>
+    </header>
+
+    <nav class="navbar">
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="../index.html" class="nav-link"><i class="fas fa-home"></i> <span data-lang="en">Home</span><span data-lang="zh">首页</span></a></li>
+            <li class="nav-item dropdown">
+                <a href="../index.html#project" class="nav-link"><i class="fas fa-info-circle"></i> <span data-lang="en">About</span><span data-lang="zh">关于</span></a>
+                <div class="dropdown-content">
+                    <a href="../index.html#project"><span data-lang="en">Project LoongFire</span><span data-lang="zh">LoongFire 项目</span></a>
+                    <a href="../index.html#loongson-port"><span data-lang="en">Loongson Port</span><span data-lang="zh">龙芯移植</span></a>
+                    <a href="../index.html#team"><span data-lang="en">Team</span><span data-lang="zh">团队</span></a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a href="#" class="nav-link"><i class="fas fa-book-open"></i> <span data-lang="en">Resources</span><span data-lang="zh">资源</span></a>
+                <div class="dropdown-content">
+                    <a href="https://ipfire.org/" target="_blank"><span data-lang="en">IPFire Docs</span><span data-lang="zh">IPFire 文档</span></a>
+                    <a href="https://ebpf.io/" target="_blank"><span data-lang="en">eBPF.io</span><span data-lang="zh">eBPF 官网</span></a>
+                    <a href="https://github.com/vincentmli/loongfire" target="_blank"><span data-lang="en">GitHub</span><span data-lang="zh">GitHub</span></a>
+                </div>
+            </li>
+            <li class="nav-item"><a href="index.html" class="nav-link"><i class="fas fa-pen-nib"></i> <span data-lang="en">Blog</span><span data-lang="zh">博客</span></a></li>
+            <li class="nav-item dropdown">
+                <a href="#" class="nav-link"><i class="fas fa-download"></i> <span data-lang="en">Download</span><span data-lang="zh">下载</span></a>
+                <div class="dropdown-content">
+                    <a href="https://www.bpfire.net/download/loongfire/images_loongarch64/" target="_blank"><span data-lang="en">LoongArch</span><span data-lang="zh">龙架构</span></a>
+                    <a href="https://www.bpfire.net/download/loongfire/images_x86_64/" target="_blank"><span data-lang="en">X86_64</span><span data-lang="zh">X86_64</span></a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a href="#" class="nav-link"><i class="fas fa-play"></i> <span data-lang="en">Demo</span><span data-lang="zh">演示</span></a>
+                <div class="dropdown-content">
+                    <a href="https://youtu.be/1pdNgoP-Kho?si=ar517D0sQq7gYv2_" target="_blank"><span data-lang="en">Youtube Demo Video</span><span data-lang="zh">油管演示视频</span></a>
+                    <a href="https://youtu.be/rVHkBf1HB7Y" target="_blank"><span data-lang="en">Loongson Mini PC Demo</span><span data-lang="zh">龙芯迷你 PC 演示</span></a>
+                    <a href="https://space.bilibili.com/622328985" target="_blank"><span data-lang="en">Bilibili Video collections</span><span data-lang="zh">Bilibili 视频集</span></a>
+                </div>
+            </li>
+            <li class="nav-item"><a href="../index.html#contactSection" class="nav-link"><i class="fas fa-envelope"></i> <span data-lang="en">Contact</span><span data-lang="zh">联系</span></a></li>
+        </ul>
+    </nav>
+
+    <main class="story-wrap">
+        <!-- story hero -->
+        <div class="story-hero">
+            <h1 data-lang="en">LoongFire v2.29 (core205) Release Notes</h1>
+            <h1 data-lang="zh">LoongFire v2.29（core205）发布说明</h1>
+            <p class="subtitle" data-lang="en">Official LoongArch64 support, a reworked toolchain, kernel 7.3.4, and a large batch of security fixes.</p>
+            <p class="subtitle" data-lang="zh">正式支持 LoongArch64、重构的工具链、7.3.4 内核，以及一大批安全修复。</p>
+            <p class="story-meta">
+                <i class="fas fa-calendar-alt"></i>
+                <span data-lang="en">2026-11-09</span><span data-lang="zh">2026-11-09</span>
+                <span style="margin:0 .4rem;">·</span>
+                <i class="fas fa-users"></i>
+                <span data-lang="en">LoongFire Team</span><span data-lang="zh">LoongFire 团队</span>
+                <span style="margin:0 .4rem;">·</span>
+                <i class="fas fa-tag"></i>
+                <span data-lang="en">v2.29 / core205</span><span data-lang="zh">v2.29 / core205</span>
+            </p>
+            <div class="story-tags">
+                <span class="story-tag">release</span>
+                <span class="story-tag">LoongArch64</span>
+                <span class="story-tag">core205</span>
+                <span class="story-tag">toolchain</span>
+                <span class="story-tag">security</span>
+            </div>
+        </div>
+
+        <!-- ===================== ENGLISH ===================== -->
+        <div data-lang="en">
+            <div class="story-card">
+                <h2><i class="fas fa-bullhorn"></i> Overview</h2>
+                <p><b>LoongFire v2.29</b> is a major milestone release. Core205 brings <b>official LoongArch64 support</b>, a completely reworked toolchain, a refreshed kernel, and a large batch of package updates and security fixes.</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-rocket"></i> Highlights</h2>
+
+                <h3>Official LoongArch64 Support</h3>
+                <p>LoongArch64 is now a first-class architecture in LoongFire. The upstream IPFire project officially supports LoongArch64 starting with core205, and this release mirrors that.</p>
+                <ul>
+                    <li><b>Generic hardware compilation</b> — the build now targets generic LoongArch64 hardware rather than a specific ISA revision, since there is not yet enough information to optimize for a specific version.</li>
+                    <li><b>QEMU emulation support</b> — the build system can emulate <code>la464</code> for LoongArch64, allowing builds without physical hardware.</li>
+                    <li><b>Toolchain alignment</b> — LoongArch64 is now aligned with the other architectures in autotools/automake configuration, compiling order, and rust build setup.</li>
+                    <li><b>python3 is now architecture-aware</b> — shared objects receive the correct architecture tuple, fixing rootfile generation.</li>
+                    <li><b>pcre JIT disabled</b> on LoongArch64 for correct builds.</li>
+                </ul>
+
+                <h3>EFI Boot Filename Fix for Loongson 3A6000</h3>
+                <p>Some Loongson 3A6000 firmware reads the ISO9660 filesystem case-sensitively and failed to find <code>bootLOONGARCH64.efi</code>. The CD-ROM now uses the uppercase <code>BOOTLOONGARCH64.EFI</code> on LoongArch only — valid UEFI naming that also works on unaffected firmware. Tested on a Morefine M700S (Loongson 3A6000). x86, ARM and RISC-V are unchanged.</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-screwdriver-wrench"></i> Toolchain Upgrades</h2>
+                <table>
+                    <thead>
+                        <tr><th>Component</th><th>New version</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>GCC</td><td>16.1.0</td></tr>
+                        <tr><td>glibc</td><td>2.44</td></tr>
+                        <tr><td>binutils</td><td>2.47.0</td></tr>
+                        <tr><td>cmake</td><td>4.4.3</td></tr>
+                        <tr><td>meson</td><td>1.12.1</td></tr>
+                        <tr><td>automake</td><td>1.19</td></tr>
+                        <tr><td>libtool</td><td>2.6.2</td></tr>
+                        <tr><td>abseil-cpp</td><td>20260817.0</td></tr>
+                    </tbody>
+                </table>
+                <ul>
+                    <li>GCC builds are now mirrored from IPFire upstream for LoongArch64.</li>
+                    <li><code>libatomic</code> is no longer built separately on riscv64 (now included in standard GCC).</li>
+                    <li>The toolchain is enabled when entering the build shell, so the environment can be entered at any time.</li>
+                    <li>Host compiler flags are filtered out when cross-compiling.</li>
+                </ul>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-microchip"></i> Kernel &amp; Boot</h2>
+                <ul>
+                    <li>Linux kernel updated to <b>7.3.4</b> (from 7.2.13).</li>
+                    <li><code>linux-atm</code> package dropped — the 7.2 kernel removed the ATM UAPI headers.</li>
+                    <li>dracut updated to <b>112</b> and renamed from <code>dracut-ng</code> back to <code>dracut</code>, including a workaround for a glibc 2.44 regression.</li>
+                    <li>GRUB updated to <b>2.16</b> (from 2.14); the riscv64 <code>medany</code> patch was reworked.</li>
+                    <li>Installer can now install EFI parts on riscv64 as well.</li>
+                </ul>
+
+                <h3>Smaller, Smarter Installer</h3>
+                <ul>
+                    <li>Installer is compressed with <code>zstd -19</code> (built only once, so heavier compression is affordable).</li>
+                    <li>Installer omits CPU microcode, dracut's network stack, and unused modules (NFS, CIFS, LVM, …).</li>
+                    <li>Netronome and LiquidIO drivers removed from the installer — their firmware alone is ~39 MiB, more than half of the installer.</li>
+                    <li>The linker cache is updated before entering the chroot, fixing cases where the chroot shell would not start.</li>
+                </ul>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-layer-group"></i> Rootfile Unification &amp; Build System</h2>
+                <p>A large mechanical overhaul unifies rootfiles across architectures, reducing drift and manual maintenance:</p>
+                <ul>
+                    <li>New placeholder scheme using <code>@NAME@</code> (autoconf style):
+                        <ul>
+                            <li><code>xxxMACHINExxx</code> → <code>@ARCH@</code></li>
+                            <li><code>xxxRUSTPLATFORMxxx</code> → <code>@RUST_PLATFORM@</code></li>
+                            <li><code>BUILDTARGET</code> → <code>@BUILDTARGET@</code></li>
+                            <li><code>KVER</code> → <code>@KERNEL_RELEASE@</code></li>
+                            <li>New <code>@ARCH_DASHED@</code> for Samba's Python libraries (e.g. <code>x86-64</code>).</li>
+                        </ul>
+                    </li>
+                    <li><code>ROOTFILE_KEEP_LITERAL</code> marks packages that carry literal architecture names in paths (e.g. <code>qemu-system-x86_64</code>), replacing the old hard-maintained exclusion list.</li>
+                    <li>Logs are written in rootfile notation — placeholders are put back automatically, eliminating manual copying and reducing per-architecture drift. Comparison is also much faster (no per-file grep).</li>
+                    <li>Special per-package rootfiles dropped from <code>make.sh</code>.</li>
+                    <li>Merged rootfiles for: boost, rust (aarch64/riscv64/x86_64 merged; LoongArch64 keeps its own), samba, stage2, grub (loongarch64/riscv64), linux-initrd, util-linux, lm_sensors, efivar, efibootmgr, rrdtool, initscripts (all architectures), python3-MarkupSafe, python3-yaml.</li>
+                    <li><code>swconfig</code> now shipped on all architectures (exits on non-aarch64), enabling a single initscripts rootfile.</li>
+                    <li>sysctl hardening config added for loongarch64 and riscv64 — both have a BPF JIT but were not applying the hardening used on aarch64/x86_64.</li>
+                    <li><code>make.sh</code>: QEMU reserves up to 8 GiB virtual memory; QEMU check simplified; <code>xz</code> reset to <code>-T0</code>; parallelism for compression hard-coded.</li>
+                </ul>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-shield-halved"></i> Security Fixes &amp; Networking</h2>
+
+                <h3>xdp-tools 1.5.5.8 — CVE-2026-98432 Mitigation</h3>
+                <ul>
+                    <li><code>xdp_synproxy</code> drops IPv4 packets with IP options (<code>IHL &gt; 5</code>) in <code>tcp_dissect()</code>, preventing SYN packets with IP options from reaching the kernel stack and triggering the use-after-free. IPv6 unaffected. This is a temporary mitigation — a patched kernel is still required as the final fix.</li>
+                    <li>New daemon mode (<code>--daemon</code>, <code>--pidfile</code>, <code>--logfile</code>) keeps the XDP program and BPF maps loaded after the launching shell exits.</li>
+                </ul>
+
+                <h3>Firewall &amp; DNS</h3>
+                <ul>
+                    <li>Knot resolver outgoing access restricted to DNS ports 53 (UDP/TCP) and 853 (TCP, DoT).</li>
+                    <li><code>knot-resolver</code> reworked patch replies from the correct address; compiled for release (no debugging/assertions).</li>
+                    <li><code>bind</code> updated to 9.20.29, <code>knot</code> to 3.6.0.</li>
+                </ul>
+
+                <h3>Other Security-Relevant Updates</h3>
+                <ul>
+                    <li><b>strongswan 6.1.0</b> — includes 10 CVE fixes. IKEv1 is now disabled by default; re-enabled via <code>--enable-ikev1</code>, but IPSec users on IKEv1 are advised to migrate to IKEv2. The gcrypt plugin has been removed.</li>
+                    <li><b>libtalloc 2.5.0</b> — includes 17 CVE fixes.</li>
+                    <li><b>faad2 2.11.3</b> — 2 CVE fixes plus ~15 additional bug fixes; build switched from autotools to cmake.</li>
+                    <li><b>lame 4.0</b> — 2 security fixes; now requires libmpg123 (new package <code>libmpg123</code> 1.33.7).</li>
+                    <li><code>xdp-tools</code>, <code>libxml2</code> 2.15.4, <code>curl</code> 8.22.0, <code>openssh</code> 10.5p1, <code>openvpn</code> 2.7.7 and many others updated.</li>
+                </ul>
+
+                <h3>Bug Fixes</h3>
+                <ul>
+                    <li><b>libloc</b> — <code>location</code> now returns 3 (not 0) when the database is the latest version, matching the man page (bug 14047).</li>
+                    <li><b>suricata-reporter</b> — fixed incorrect <code>suricata-report-cron</code> file being installed (bug 14048); also added the missing <code>suricata-report-cron</code>.</li>
+                    <li><b>apache</b> — regenerates empty ECDSA key/CSR/cert files on start (uses <code>test -s</code> instead of <code>test -f</code>), fixing a broken web UI after a low-entropy first boot.</li>
+                    <li><b>zabbix_agent</b> — added missing userparameter conf file; added Suricata metrics support (<code>suricata.counters.get</code>, <code>suricata.version</code> via <code>suricatasc</code>, with sudoers entries); updated to 7.0.29 LTS.</li>
+                    <li><b>python3-zabbix-utils</b> — new package v2.0.4.</li>
+                    <li><b>shairport-sync 5.5.2</b> — improved compatibility with Apple OS 27; the 10-year-old alac addon is removed, replaced with <code>--with-ffmpeg</code>.</li>
+                </ul>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-box-open"></i> Package Updates (Selection)</h2>
+                <div class="pkg-list">
+                    <p><b>Networking:</b> frr 10.7.1, tcpdump 4.99.6, tshark 4.6.9, lldpd 1.0.22, iproute2 7.2.0, wpa_supplicant 2.12, dhcpcd 10.5.0, nfs 3.1.1, rpcbind 1.3.1, cifs-utils 7.8, libpcap 1.11.0, libtirpc 1.3.8</p>
+                    <p><b>Databases &amp; RPC:</b> openldap 2.7.1, lmdb 1.0.2, aprutil 1.6.5, protobuf 36.1, protobuf-c (C++17 build fix)</p>
+                    <p><b>System:</b> systemd 261.3, util-linux 2.42.4, procps 4.0.7, shadow 4.20.0, coreutils 9.12, findutils 4.11.0, parted 3.8, lvm2 2.03.43, nut 2.8.5, htop 3.5.3, btrfs-progs 7.1, elfutils 0.196, fuse 3.18.3, ntfs-3g 2026.9.28, xorriso 1.5.8.pl02</p>
+                    <p><b>Libraries:</b> libpng 1.6.59, libgcrypt 1.12.4, libcap-ng 0.9.6, libksba 1.8.1, libmicrohttpd 1.0.10, libffi 3.8.0, libxxhash 0.8.4, jansson 2.15.1, pcre2 10.49, xz 5.8.4, gzip 1.15, readline 8.3 Patch-6, p11-kit 0.26.5, fontconfig 2.18.3, cairo 1.18.6, pixman 0.46.4, fribidi 1.0.17, freetype-dependent stack refreshed</p>
+                    <p><b>Media:</b> flac 1.5.0 (soname bump; minidlna, mpd, mympd rebuilt and version-bumped), sdl2 2.32.10, taglib 2.3.1, mpg123 1.33.7</p>
+                    <p><b>Data &amp; Time:</b> tzdata 2026e, iana-etc 20260911, Net-DNS 1.57, intel-microcode 20260925</p>
+                    <p><b>Mail/Web:</b> freeradius 3.2.10, keepalived 2.4.3, bacula 15.0.3</p>
+                    <p><b>Tooling:</b> perf build fix (<code>.eh_frame_hdr</code> overlapping FDEs workaround with <code>-Wl,--no-eh-frame-hdr</code>), pahole warning suppression</p>
+                </div>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-code-branch"></i> Architecture &amp; Platform Notes</h2>
+                <ul>
+                    <li>README updated to document x86_64 support status.</li>
+                    <li><code>ipfire-netboot/syslinux</code> rootfile removed for LoongArch64 (not required).</li>
+                    <li><code>liboping</code> updated to 1.10.0 to fix missing-liboping errors in LFS/CD-ROM builds.</li>
+                    <li><code>mpd</code>/<code>minidlna</code>/<code>mympdc</code> version-bumped for flac and ffmpeg soname bumps.</li>
+                    <li>Manual pages: added missing help-page links for DNS, Dial and Wlanclient.</li>
+                    <li>Images: linker cache updated before entering chroot.</li>
+                </ul>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-exclamation-triangle"></i> Upgrade Notes</h2>
+                <ol>
+                    <li>IPSec users on IKEv1 should plan migration to IKEv2 — strongswan 6.1.0 disables IKEv1 by default and upstream plans to remove it.</li>
+                    <li><code>alac</code> addon removed — shairport-sync now uses ffmpeg for ALAC decoding.</li>
+                    <li><code>linux-atm</code> removed — no longer buildable against the 7.x kernel.</li>
+                    <li>CVE-2026-98432 is mitigated at the XDP layer only; update your kernel to receive the final fix.</li>
+                    <li>glibc 2.44 required dracut workarounds; ensure a full clean rebuild if building from source.</li>
+                </ol>
+                <div class="callout callout-info">
+                    <b>Full source:</b> loongfire v2.29 / core205 — commit range <code>core204..core205</code><br>
+                    <b>Tested on:</b> Morefine M700S (Loongson 3A6000), QEMU la464 emulation
+                </div>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-heart"></i> Acknowledgements</h2>
+                <p>Thank you to <b>Vincent Li</b> and all upstream IPFire contributors — <b>Michael Tremer</b>, <b>Adolf Belka</b>, <b>Arne Fitzenreiter</b>, <b>Peter Müller</b>, <b>Robin Roevens</b>, <b>Matthias Fischer</b> — whose work is mirrored in this release.</p>
+            </div>
+        </div>
+
+        <!-- ===================== 中文 ===================== -->
+        <div data-lang="zh">
+            <div class="story-card">
+                <h2><i class="fas fa-bullhorn"></i> 概述</h2>
+                <p><b>LoongFire v2.29</b> 是一个重要的里程碑版本。Core205 带来了<b>正式支持 LoongArch64</b>、全面重构的工具链、更新的内核，以及大量软件包更新和安全修复。</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-rocket"></i> 亮点</h2>
+
+                <h3>正式支持 LoongArch64</h3>
+                <p>LoongArch64 现已成为 LoongFire 的一等架构。上游 IPFire 项目从 core205 开始正式支持 LoongArch64，本版本与之保持一致。</p>
+                <ul>
+                    <li><b>通用硬件编译</b> —— 构建现在面向通用 LoongArch64 硬件，而非特定 ISA 版本，因为目前还没有足够信息来决定针对特定版本进行优化。</li>
+                    <li><b>QEMU 模拟支持</b> —— 构建系统可以模拟 <code>la464</code>，无需物理硬件即可构建。</li>
+                    <li><b>工具链对齐</b> —— LoongArch64 现在在 autotools/automake 配置、编译顺序和 rust 构建配置上与其他架构保持一致。</li>
+                    <li><b>python3 现已感知架构</b> —— 共享对象获得正确的架构元组，修复了 rootfile 生成问题。</li>
+                    <li><b>LoongArch64 上禁用 pcre JIT</b>，以确保正确构建。</li>
+                </ul>
+
+                <h3>Loongson 3A6000 的 EFI 启动文件名修复</h3>
+                <p>部分 Loongson 3A6000 固件以区分大小写的方式读取 ISO9660 文件系统，无法找到 <code>bootLOONGARCH64.efi</code>。CD-ROM 现在仅在 LoongArch 上使用大写的 <code>BOOTLOONGARCH64.EFI</code> —— 这是合法的 UEFI 命名，在不受影响的固件上同样有效。已在 Morefine M700S（Loongson 3A6000）上测试。x86、ARM 和 RISC-V 保持不变。</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-screwdriver-wrench"></i> 工具链升级</h2>
+                <table>
+                    <thead>
+                        <tr><th>组件</th><th>新版本</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>GCC</td><td>16.1.0</td></tr>
+                        <tr><td>glibc</td><td>2.44</td></tr>
+                        <tr><td>binutils</td><td>2.47.0</td></tr>
+                        <tr><td>cmake</td><td>4.4.3</td></tr>
+                        <tr><td>meson</td><td>1.12.1</td></tr>
+                        <tr><td>automake</td><td>1.19</td></tr>
+                        <tr><td>libtool</td><td>2.6.2</td></tr>
+                        <tr><td>abseil-cpp</td><td>20260817.0</td></tr>
+                    </tbody>
+                </table>
+                <ul>
+                    <li>LoongArch64 的 GCC 构建现在镜像自 IPFire 上游。</li>
+                    <li>riscv64 上不再单独构建 <code>libatomic</code>（现已包含在标准 GCC 构建中）。</li>
+                    <li>进入构建 shell 时启用工具链，因此可以随时进入该环境。</li>
+                    <li>交叉编译时过滤掉宿主编译器不支持的标志。</li>
+                </ul>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-microchip"></i> 内核与启动</h2>
+                <ul>
+                    <li>Linux 内核更新至 <b>7.3.4</b>（从 7.2.13）。</li>
+                    <li>移除 <code>linux-atm</code> 软件包 —— 7.2 内核移除了 ATM UAPI 头文件。</li>
+                    <li>dracut 更新至 <b>112</b>，并从 <code>dracut-ng</code> 改回 <code>dracut</code>，包含针对 glibc 2.44 回归问题的规避方案。</li>
+                    <li>GRUB 更新至 <b>2.16</b>（从 2.14）；riscv64 的 <code>medany</code> 补丁已重做。</li>
+                    <li>安装程序现在也可以在 riscv64 上安装 EFI 部分。</li>
+                </ul>
+
+                <h3>更小、更智能的安装程序</h3>
+                <ul>
+                    <li>安装程序使用 <code>zstd -19</code> 压缩（只构建一次，因此可以承受更重的压缩）。</li>
+                    <li>安装程序省略 CPU 微码、dracut 的网络栈以及未使用的模块（NFS、CIFS、LVM……）。</li>
+                    <li>从安装程序中移除 Netronome 和 LiquidIO 驱动 —— 仅其固件就约 39 MiB，超过安装程序的一半。</li>
+                    <li>进入 chroot 前更新链接器缓存，修复了 chroot shell 无法启动的情况。</li>
+                </ul>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-layer-group"></i> Rootfile 统一与构建系统</h2>
+                <p>一次大规模的机械性重构统一了跨架构的 rootfile，减少了漂移和手动维护：</p>
+                <ul>
+                    <li>新的占位符方案，使用 <code>@NAME@</code>（autoconf 风格）：
+                        <ul>
+                            <li><code>xxxMACHINExxx</code> → <code>@ARCH@</code></li>
+                            <li><code>xxxRUSTPLATFORMxxx</code> → <code>@RUST_PLATFORM@</code></li>
+                            <li><code>BUILDTARGET</code> → <code>@BUILDTARGET@</code></li>
+                            <li><code>KVER</code> → <code>@KERNEL_RELEASE@</code></li>
+                            <li>新增 <code>@ARCH_DASHED@</code>，用于 Samba 的 Python 库（例如 <code>x86-64</code>）。</li>
+                        </ul>
+                    </li>
+                    <li><code>ROOTFILE_KEEP_LITERAL</code> 标记在路径中包含字面架构名称的软件包（例如 <code>qemu-system-x86_64</code>），取代了旧的硬编码排除列表。</li>
+                    <li>日志以 rootfile 记法写入 —— 占位符自动放回，消除了手动复制并减少了各架构间的漂移。比较速度也大幅提升（不再对每个文件执行 grep）。</li>
+                    <li>从 <code>make.sh</code> 中移除特殊的按包 rootfile。</li>
+                    <li>合并 rootfile：boost、rust（aarch64/riscv64/x86_64 合并；LoongArch64 保留自己的）、samba、stage2、grub（loongarch64/riscv64）、linux-initrd、util-linux、lm_sensors、efivar、efibootmgr、rrdtool、initscripts（所有架构）、python3-MarkupSafe、python3-yaml。</li>
+                    <li><code>swconfig</code> 现在在所有架构上发布（在非 aarch64 上直接退出），从而实现单一的 initscripts rootfile。</li>
+                    <li>为 loongarch64 和 riscv64 添加 sysctl 加固配置 —— 两者都有 BPF JIT，但此前未应用 aarch64/x86_64 上使用的加固措施。</li>
+                    <li><code>make.sh</code>：QEMU 预留最多 8 GiB 虚拟内存；简化 QEMU 检查；<code>xz</code> 重置为 <code>-T0</code>；压缩并行度硬编码。</li>
+                </ul>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-shield-halved"></i> 安全修复与网络</h2>
+
+                <h3>xdp-tools 1.5.5.8 —— CVE-2026-98432 缓解</h3>
+                <ul>
+                    <li><code>xdp_synproxy</code> 丢弃带 IP 选项的 IPv4 数据包（<code>IHL &gt; 5</code>），在 <code>tcp_dissect()</code> 中处理，防止带 IP 选项的 SYN 包到达内核栈并触发释放后使用漏洞。IPv6 不受影响。这是临时缓解措施 —— 最终修复仍需打补丁的内核。</li>
+                    <li>新增守护进程模式（<code>--daemon</code>、<code>--pidfile</code>、<code>--logfile</code>），使启动 shell 退出后 XDP 程序和 BPF map 保持加载。</li>
+                </ul>
+
+                <h3>防火墙与 DNS</h3>
+                <ul>
+                    <li>Knot 解析器的出站访问限制为 DNS 端口 53（UDP/TCP）和 853（TCP，DoT）。</li>
+                    <li><code>knot-resolver</code> 重做的补丁从正确地址回复；为发布版编译（无调试/断言）。</li>
+                    <li><code>bind</code> 更新至 9.20.29，<code>knot</code> 更新至 3.6.0。</li>
+                </ul>
+
+                <h3>其他安全相关更新</h3>
+                <ul>
+                    <li><b>strongswan 6.1.0</b> —— 包含 10 个 CVE 修复。IKEv1 现在默认禁用；通过 <code>--enable-ikev1</code> 重新启用，但建议 IKEv1 的 IPSec 用户迁移到 IKEv2。gcrypt 插件已移除。</li>
+                    <li><b>libtalloc 2.5.0</b> —— 包含 17 个 CVE 修复。</li>
+                    <li><b>faad2 2.11.3</b> —— 2 个 CVE 修复以及约 15 个额外 bug 修复；构建从 autotools 切换到 cmake。</li>
+                    <li><b>lame 4.0</b> —— 2 个安全修复；现在需要 libmpg123（新软件包 <code>libmpg123</code> 1.33.7）。</li>
+                    <li><code>xdp-tools</code>、<code>libxml2</code> 2.15.4、<code>curl</code> 8.22.0、<code>openssh</code> 10.5p1、<code>openvpn</code> 2.7.7 等众多软件包已更新。</li>
+                </ul>
+
+                <h3>Bug 修复</h3>
+                <ul>
+                    <li><b>libloc</b> —— 当数据库为最新版本时，<code>location</code> 现在返回 3（而非 0），与手册页一致（bug 14047）。</li>
+                    <li><b>suricata-reporter</b> —— 修复了安装错误的 <code>suricata-report-cron</code> 文件的问题（bug 14048）；同时添加了缺失的 <code>suricata-report-cron</code>。</li>
+                    <li><b>apache</b> —— 启动时重新生成空的 ECDSA 密钥/CSR/证书文件（使用 <code>test -s</code> 而非 <code>test -f</code>），修复了低熵首次启动后 Web UI 损坏的问题。</li>
+                    <li><b>zabbix_agent</b> —— 添加缺失的 userparameter 配置文件；新增 Suricata 指标支持（通过 <code>suricatasc</code> 的 <code>suricata.counters.get</code>、<code>suricata.version</code>，并配置 sudoers 条目）；更新至 7.0.29 LTS。</li>
+                    <li><b>python3-zabbix-utils</b> —— 新软件包 v2.0.4。</li>
+                    <li><b>shairport-sync 5.5.2</b> —— 改善与 Apple OS 27 的兼容性；已有 10 年历史的 alac 插件被移除，替换为 <code>--with-ffmpeg</code>。</li>
+                </ul>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-box-open"></i> 软件包更新（部分）</h2>
+                <div class="pkg-list">
+                    <p><b>网络：</b>frr 10.7.1、tcpdump 4.99.6、tshark 4.6.9、lldpd 1.0.22、iproute2 7.2.0、wpa_supplicant 2.12、dhcpcd 10.5.0、nfs 3.1.1、rpcbind 1.3.1、cifs-utils 7.8、libpcap 1.11.0、libtirpc 1.3.8</p>
+                    <p><b>数据库与 RPC：</b>openldap 2.7.1、lmdb 1.0.2、aprutil 1.6.5、protobuf 36.1、protobuf-c（C++17 构建修复）</p>
+                    <p><b>系统：</b>systemd 261.3、util-linux 2.42.4、procps 4.0.7、shadow 4.20.0、coreutils 9.12、findutils 4.11.0、parted 3.8、lvm2 2.03.43、nut 2.8.5、htop 3.5.3、btrfs-progs 7.1、elfutils 0.196、fuse 3.18.3、ntfs-3g 2026.9.28、xorriso 1.5.8.pl02</p>
+                    <p><b>库：</b>libpng 1.6.59、libgcrypt 1.12.4、libcap-ng 0.9.6、libksba 1.8.1、libmicrohttpd 1.0.10、libffi 3.8.0、libxxhash 0.8.4、jansson 2.15.1、pcre2 10.49、xz 5.8.4、gzip 1.15、readline 8.3 Patch-6、p11-kit 0.26.5、fontconfig 2.18.3、cairo 1.18.6、pixman 0.46.4、fribidi 1.0.17，freetype 依赖栈已刷新</p>
+                    <p><b>媒体：</b>flac 1.5.0（soname 升级；minidlna、mpd、mympdc 重新构建并版本递增）、sdl2 2.32.10、taglib 2.3.1、mpg123 1.33.7</p>
+                    <p><b>数据与时间：</b>tzdata 2026e、iana-etc 20260911、Net-DNS 1.57、intel-microcode 20260925</p>
+                    <p><b>邮件/Web：</b>freeradius 3.2.10、keepalived 2.4.3、bacula 15.0.3</p>
+                    <p><b>工具：</b>perf 构建修复（使用 <code>-Wl,--no-eh-frame-hdr</code> 规避 <code>.eh_frame_hdr</code> 重叠 FDE 问题）、pahole 警告抑制</p>
+                </div>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-code-branch"></i> 架构与平台说明</h2>
+                <ul>
+                    <li>更新 README，记录 x86_64 支持状态。</li>
+                    <li>移除 LoongArch64 的 <code>ipfire-netboot/syslinux</code> rootfile（不需要）。</li>
+                    <li><code>liboping</code> 更新至 1.10.0，修复 LFS/CD-ROM 构建中缺失 liboping 的错误。</li>
+                    <li><code>mpd</code>/<code>minidlna</code>/<code>mympdc</code> 因 flac 和 ffmpeg soname 升级而递增版本。</li>
+                    <li>手册页：为 DNS、Dial 和 Wlanclient 添加缺失的帮助页链接。</li>
+                    <li>镜像：进入 chroot 前更新链接器缓存。</li>
+                </ul>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-exclamation-triangle"></i> 升级注意事项</h2>
+                <ol>
+                    <li>使用 IKEv1 的 IPSec 用户应计划迁移到 IKEv2 —— strongswan 6.1.0 默认禁用 IKEv1，上游计划移除它。</li>
+                    <li><code>alac</code> 插件已移除 —— shairport-sync 现在使用 ffmpeg 进行 ALAC 解码。</li>
+                    <li><code>linux-atm</code> 已移除 —— 无法再针对 7.x 内核构建。</li>
+                    <li>CVE-2026-98432 仅在 XDP 层缓解；请更新内核以获得最终修复。</li>
+                    <li>glibc 2.44 需要 dracut 规避方案；如果从源码构建，请确保完全干净重建。</li>
+                </ol>
+                <div class="callout callout-info">
+                    <b>完整源码：</b>loongfire v2.29 / core205 — 提交范围 <code>core204..core205</code><br>
+                    <b>测试平台：</b>Morefine M700S（Loongson 3A6000）、QEMU la464 模拟
+                </div>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-heart"></i> 致谢</h2>
+                <p>感谢 <b>Vincent Li</b> 以及所有上游 IPFire 贡献者 —— <b>Michael Tremer</b>、<b>Adolf Belka</b>、<b>Arne Fitzenreiter</b>、<b>Peter Müller</b>、<b>Robin Roevens</b>、<b>Matthias Fischer</b>，本版本镜像了他们的工作。</p>
+            </div>
+        </div>
+
+        <div class="post-nav">
+            <a href="index.html"><i class="fas fa-arrow-left"></i>
+                <span data-lang="en">All posts</span><span data-lang="zh">全部文章</span>
+            </a>
+            <a href="../index.html">
+                <span data-lang="en">Home</span><span data-lang="zh">首页</span> <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>
+            <i class="fas fa-dragon"></i> LoongFire · 龙火 &nbsp;|&nbsp;
+            <span data-lang="en">Open Source Firewall for LoongArch</span>
+            <span data-lang="zh">龙架构开源防火墙</span>
+            <span style="margin:0 0.5rem;">·</span>
+            <span data-lang="en">© 2026 LoongFire Project</span>
+            <span data-lang="zh">© 2026 LoongFire 项目</span>
+        </p>
+    </footer>
+
+    <script>
+    (function () {
+        var toggle = document.getElementById('langToggle');
+        if (toggle) {
+            toggle.addEventListener('click', function () {
+                setTimeout(function () {
+                    var current = document.body.classList.contains('lang-zh') ? 'zh' : 'en';
+                    try { localStorage.setItem('loongfire-lang', current); } catch (e) {}
+                }, 0);
+            });
+        }
+    })();
+    </script>
+    <script src="../script.js"></script>
+</body>
+</html>
