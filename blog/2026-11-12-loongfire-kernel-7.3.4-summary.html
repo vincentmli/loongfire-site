@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kernel 7.3.4 Summary — Relevance to LoongFire · LoongFire Blog</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .story-wrap { max-width: 900px; margin: 0 auto; padding: 2rem 1.2rem 4rem; }
+        .story-hero { text-align: center; margin-bottom: 2rem; padding-bottom: 1.4rem; border-bottom: 2px solid #f0e4cc; }
+        .story-hero h1 { color: #1f2f34; font-size: 1.9rem; line-height: 1.35; margin-bottom: .6rem; }
+        .story-hero .subtitle { color: #6b5f4e; font-size: 1rem; }
+        .story-meta { font-size: .85rem; color: #8a7c67; margin-top: .9rem; }
+        .story-meta i { margin-right: .3rem; }
+        .story-tags { margin-top: .8rem; }
+        .story-tag {
+            display: inline-block; font-size: .75rem; padding: 2px 9px;
+            background: #f0e4cc; color: #7a5a1a; border-radius: 12px; margin: 0 .3rem;
+        }
+        .story-card {
+            background: #fffdf7; border: 1px solid #e6dcc8; border-radius: 12px;
+            padding: 1.6rem 1.8rem; margin: 1.6rem 0;
+            box-shadow: 0 2px 10px rgba(60,45,20,.06);
+        }
+        .story-card h2 { color: #8b0000; font-size: 1.3rem; margin: 0 0 .9rem; border-bottom: 2px solid #f0e4cc; padding-bottom: .5rem; }
+        .story-card h3 { color: #1f2f34; font-size: 1.05rem; margin: 1.2rem 0 .4rem; }
+        .story-card p { line-height: 1.75; color: #3a3126; margin: .7rem 0; }
+        .story-card ul, .story-card ol { line-height: 1.75; color: #3a3126; margin: .6rem 0 .6rem 1.4rem; }
+        .story-card li { margin: .5rem 0; }
+        .story-card a { color: #a35f1a; text-decoration: none; border-bottom: 1px dotted #b87d38; }
+        .story-card a:hover { color: #8b0000; }
+        .story-card code { background: #f3ece0; padding: 1px 6px; border-radius: 4px; font-size: .9em; color: #7a2e2e; }
+        .callout { background: #fff4e0; border-left: 4px solid #d9a441; padding: .9rem 1.2rem; border-radius: 6px; margin: 1rem 0; }
+        .callout-danger { background: #fdecec; border-left-color: #c0392b; }
+        .callout-info { background: #eaf3fb; border-left-color: #3a7ca5; }
+        .callout-success { background: #eef7ec; border-left-color: #3f8f4a; }
+        .post-nav { display: flex; justify-content: space-between; margin: 2.5rem 0 0; font-size: .9rem; }
+        .post-nav a { color: #a35f1a; text-decoration: none; border-bottom: 1px dotted #b87d38; }
+        body.lang-en [data-lang="zh"], body.lang-zh [data-lang="en"] { display: none !important; }
+    </style>
+    <!-- Early language application to avoid flash of bilingual content -->
+    <script>
+    (function () {
+        try {
+            var lang = new URLSearchParams(location.search).get('lang')
+                    || localStorage.getItem('loongfire-lang') || 'en';
+            if (lang !== 'zh') lang = 'en';
+            document.documentElement.className = 'lang-' + lang;
+            document.addEventListener('DOMContentLoaded', function () {
+                document.body.classList.remove('lang-en', 'lang-zh');
+                document.body.classList.add('lang-' + lang);
+                document.documentElement.lang = (lang === 'zh' ? 'zh-CN' : 'en');
+                try { localStorage.setItem('loongfire-lang', lang); } catch (e) {}
+            });
+        } catch (e) {}
+    })();
+    </script>
+</head>
+<body class="lang-en">
+
+    <header class="header">
+        <div class="logo-area">
+            <span class="logo-icon"><i class="fas fa-dragon"></i></span>
+            <span class="logo-text">
+                LoongFire <small>· 龙火</small>
+                <small style="font-weight:300; font-size:0.9rem; margin-left:0.3rem;" data-lang="en">firewall · eBPF</small>
+                <small style="font-weight:300; font-size:0.9rem; margin-left:0.3rem;" data-lang="zh">防火墙 · eBPF</small>
+            </span>
+        </div>
+        <button class="lang-toggle" id="langToggle">
+            <i class="fas fa-globe"></i>
+            <span data-lang="en">EN / 中文</span>
+            <span data-lang="zh">中文 / EN</span>
+        </button>
+    </header>
+
+    <nav class="navbar">
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="../index.html" class="nav-link"><i class="fas fa-home"></i> <span data-lang="en">Home</span><span data-lang="zh">首页</span></a></li>
+            <li class="nav-item dropdown">
+                <a href="../index.html#project" class="nav-link"><i class="fas fa-info-circle"></i> <span data-lang="en">About</span><span data-lang="zh">关于</span></a>
+                <div class="dropdown-content">
+                    <a href="../index.html#project"><span data-lang="en">Project LoongFire</span><span data-lang="zh">LoongFire 项目</span></a>
+                    <a href="../index.html#loongson-port"><span data-lang="en">Loongson Port</span><span data-lang="zh">龙芯移植</span></a>
+                    <a href="../index.html#team"><span data-lang="en">Team</span><span data-lang="zh">团队</span></a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a href="#" class="nav-link"><i class="fas fa-book-open"></i> <span data-lang="en">Resources</span><span data-lang="zh">资源</span></a>
+                <div class="dropdown-content">
+                    <a href="https://ipfire.org/" target="_blank"><span data-lang="en">IPFire Docs</span><span data-lang="zh">IPFire 文档</span></a>
+                    <a href="https://ebpf.io/" target="_blank"><span data-lang="en">eBPF.io</span><span data-lang="zh">eBPF 官网</span></a>
+                    <a href="https://github.com/vincentmli/loongfire" target="_blank"><span data-lang="en">GitHub</span><span data-lang="zh">GitHub</span></a>
+                </div>
+            </li>
+            <li class="nav-item"><a href="index.html" class="nav-link"><i class="fas fa-pen-nib"></i> <span data-lang="en">Blog</span><span data-lang="zh">博客</span></a></li>
+            <li class="nav-item dropdown">
+                <a href="#" class="nav-link"><i class="fas fa-download"></i> <span data-lang="en">Download</span><span data-lang="zh">下载</span></a>
+                <div class="dropdown-content">
+                    <a href="https://www.bpfire.net/download/loongfire/images_loongarch64/" target="_blank"><span data-lang="en">LoongArch</span><span data-lang="zh">龙架构</span></a>
+                    <a href="https://www.bpfire.net/download/loongfire/images_x86_64/" target="_blank"><span data-lang="en">X86_64</span><span data-lang="zh">X86_64</span></a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a href="#" class="nav-link"><i class="fas fa-play"></i> <span data-lang="en">Demo</span><span data-lang="zh">演示</span></a>
+                <div class="dropdown-content">
+                    <a href="https://youtu.be/1pdNgoP-Kho?si=ar517D0sQq7gYv2_" target="_blank"><span data-lang="en">Youtube Demo Video</span><span data-lang="zh">油管演示视频</span></a>
+                    <a href="https://youtu.be/rVHkBf1HB7Y" target="_blank"><span data-lang="en">Loongson Mini PC Demo</span><span data-lang="zh">龙芯迷你 PC 演示</span></a>
+                    <a href="https://space.bilibili.com/622328985" target="_blank"><span data-lang="en">Bilibili Video collections</span><span data-lang="zh">Bilibili 视频集</span></a>
+                </div>
+            </li>
+            <li class="nav-item"><a href="../index.html#contactSection" class="nav-link"><i class="fas fa-envelope"></i> <span data-lang="en">Contact</span><span data-lang="zh">联系</span></a></li>
+        </ul>
+    </nav>
+
+    <main class="story-wrap">
+        <!-- story hero -->
+        <div class="story-hero">
+            <h1 data-lang="en">Kernel 7.3.4 Summary — Relevance to LoongFire</h1>
+            <h1 data-lang="zh">内核 7.3.4 摘要 —— 对 LoongFire 的相关性</h1>
+            <p class="subtitle" data-lang="en">IPFire on LoongArch, eBPF-enabled — what the 7.3.4 changes mean for a firewall appliance.</p>
+            <p class="subtitle" data-lang="zh">基于 LoongArch 的 IPFire、启用 eBPF —— 7.3.4 的变更对防火墙设备意味着什么。</p>
+            <p class="story-meta">
+                <i class="fas fa-calendar-alt"></i>
+                <span data-lang="en">2026-11-12</span><span data-lang="zh">2026-11-12</span>
+                <span style="margin:0 .4rem;">·</span>
+                <i class="fas fa-users"></i>
+                <span data-lang="en">LoongFire Team</span><span data-lang="zh">LoongFire 团队</span>
+                <span style="margin:0 .4rem;">·</span>
+                <i class="fas fa-microchip"></i>
+                <span data-lang="en">Linux 7.3.4</span><span data-lang="zh">Linux 7.3.4</span>
+            </p>
+            <div class="story-tags">
+                <span class="story-tag">kernel</span>
+                <span class="story-tag">LoongArch</span>
+                <span class="story-tag">eBPF</span>
+                <span class="story-tag">XDP</span>
+                <span class="story-tag">networking</span>
+            </div>
+        </div>
+
+        <!-- ===================== ENGLISH ===================== -->
+        <div data-lang="en">
+            <div class="story-card">
+                <h2><i class="fas fa-bullseye"></i> The Short Version</h2>
+                <p>LoongFire now runs <b>Linux kernel 7.3.4</b>. This post walks through which changes in that release matter for a LoongArch-based, eBPF-enabled firewall — and which ones don't.</p>
+                <div class="callout callout-success">
+                    <b>Bottom line:</b> the one operationally critical LoongArch change for an eBPF-enabled firewall is the <b>atomic memory-ordering fix</b> — without it, BPF timer/deadlock-detection paths and many core <code>smp_mb__after_atomic()</code> users are unsafe on LoongArch. The TCP MSS revert and the VLAN/IPsec/nftables fixes are the most relevant packet-path items.
+                </div>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-microchip"></i> LoongArch: Directly Relevant</h2>
+
+                <h3>BPF / memory ordering (critical for eBPF)</h3>
+                <p>The removal of arch-specific <code>__smp_mb__{before,after}_atomic()</code> is the most important item for LoongFire. These were only compiler barriers, violating LKMM; <code>bpf_timer_cancel()</code> relies on <code>smp_mb__after_atomic()</code> for store-load ordering before lockless dependency checks. On LoongArch this allowed concurrent CPUs to bypass deadlock detection and ABBA-deadlock <code>hrtimer_cancel()</code>, producing soft lockups/panics — exactly the failure mode seen in the <code>BPF timer_lockup</code> selftest.</p>
+                <p>The fix falls back to the generic <code>__smp_mb()</code> (hardware DBAR), and hundreds of other core-kernel <code>smp_mb__after_atomic()</code> sites on LoongArch also gain proper barriers. <b>This is a must-have for a firewall running BPF-based filtering/XDP.</b></p>
+
+                <h3>Hardware breakpoint/watchpoint series</h3>
+                <p>Perf fixes: one-shot limitation, <code>CSR_PRMD_PWE</code> not enabled for perf, unconditional SIGTRAP killing perf users, bitmask corruption clearing PLV/LCL bits. Relevant for on-box profiling/debugging of the firewall, not for packet processing itself.</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-network-wired"></i> Networking / Packet Path (firewall-relevant)</h2>
+                <ul>
+                    <li><b>TCP MSS revert</b> — restoring "advertise MSS from learned PMTU" is important for a firewall/router: connections through a relay with a smaller-MTU hop that have ICMP filtered (common in enterprise/carrier networks) stalled after handshake. Directly affects forwarded traffic.</li>
+                    <li><b>VLAN untag depth limit</b> — 16-bit header offset wraparound → OOB access; relevant to any firewall handling stacked VLANs.</li>
+                    <li><b>IPsec frag reassembly</b> — reject fragments whose secpath differs (partial authentication); relevant if LoongFire terminates/forwards IPsec tunnels.</li>
+                    <li><b>GRO frag_list BUG_ON</b> — generic XDP linearized GSO packets + tunnel decap + GRO produced kernel BUG in <code>skb_segment</code>; relevant to XDP-in-SKB-mode setups common on firewalls.</li>
+                    <li><b>inet unhashed-socket lookup</b> — lockless ehash lookup could return a reused socket (NULL-deref panic); hardens TCP forwarding under load.</li>
+                </ul>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-flag-checkered"></i> Bottom Line for LoongFire</h2>
+                <p>The only LoongArch change that is operationally critical for an eBPF-enabled firewall is the <b>atomic memory-ordering fix</b> — without it, BPF timer/deadlock-detection paths and many core <code>smp_mb__after_atomic()</code> users are unsafe on LoongArch.</p>
+                <p>The <b>TCP MSS revert</b> and the <b>VLAN/IPsec/nftables fixes</b> are the most relevant packet-path items. The <b>perf/watchpoint</b> and <b>cpufreq</b> series improve debugging and server-hardware behavior rather than packet processing.</p>
+            </div>
+        </div>
+
+        <!-- ===================== 中文 ===================== -->
+        <div data-lang="zh">
+            <div class="story-card">
+                <h2><i class="fas fa-bullseye"></i> 简要版</h2>
+                <p>LoongFire 现已运行 <b>Linux 内核 7.3.4</b>。本文梳理该版本中哪些变更对基于 LoongArch、启用 eBPF 的防火墙有影响——哪些没有。</p>
+                <div class="callout callout-success">
+                    <b>结论：</b>对启用 eBPF 的防火墙而言，唯一具有操作关键性的 LoongArch 变更是<b>原子内存序修复</b> —— 没有它，BPF 定时器/死锁检测路径以及许多核心 <code>smp_mb__after_atomic()</code> 用户在 LoongArch 上是不安全的。TCP MSS 回退和 VLAN/IPsec/nftables 修复是最相关的数据包路径项。
+                </div>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-microchip"></i> LoongArch：直接相关</h2>
+
+                <h3>BPF / 内存序（对 eBPF 至关重要）</h3>
+                <p>移除架构特定的 <code>__smp_mb__{before,after}_atomic()</code> 是 LoongFire 最重要的一项。这些原本只是编译器屏障，违反了 LKMM；<code>bpf_timer_cancel()</code> 依赖 <code>smp_mb__after_atomic()</code> 在无锁依赖检查之前提供存储-加载顺序。在 LoongArch 上，这允许并发 CPU 绕过死锁检测并对 <code>hrtimer_cancel()</code> 造成 ABBA 死锁，产生软锁死/内核 panic —— 正是 <code>BPF timer_lockup</code> 自测中所见的故障模式。</p>
+                <p>该修复回退到通用的 <code>__smp_mb()</code>（硬件 DBAR），并且 LoongArch 上数百个其他核心内核 <code>smp_mb__after_atomic()</code> 调用点也获得了正确的屏障。<b>对于运行基于 BPF 的过滤/XDP 的防火墙，这是必须项。</b></p>
+
+                <h3>硬件断点/观察点系列</h3>
+                <p>perf 修复：一次性限制、perf 未启用 <code>CSR_PRMD_PWE</code>、无条件 SIGTRAP 导致 perf 用户被杀、位掩码损坏清除 PLV/LCL 位。与防火墙的本机性能分析/调试相关，而非数据包处理本身。</p>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-network-wired"></i> 网络 / 数据包路径（防火墙相关）</h2>
+                <ul>
+                    <li><b>TCP MSS 回退</b> —— 恢复"从学习到的 PMTU 通告 MSS"对防火墙/路由器很重要：经过具有更小 MTU 跳且 ICMP 被过滤的中继（企业/运营商网络常见）的连接在握手后停顿。直接影响转发流量。</li>
+                    <li><b>VLAN 解标签深度限制</b> —— 16 位头部偏移回绕 → 越界访问；与处理堆叠 VLAN 的任何防火墙相关。</li>
+                    <li><b>IPsec 分片重组</b> —— 拒绝 secpath 不一致的分片（部分认证）；如果 LoongFire 终结/转发 IPsec 隧道则相关。</li>
+                    <li><b>GRO frag_list BUG_ON</b> —— 通用 XDP 线性化 GSO 数据包 + 隧道解封装 + GRO 在 <code>skb_segment</code> 中产生内核 BUG；与防火墙上常见的 XDP-in-SKB 模式相关。</li>
+                    <li><b>inet 未哈希套接字查找</b> —— 无锁 ehash 查找可能返回被复用的套接字（NULL 解引用 panic）；在高负载下加固 TCP 转发。</li>
+                </ul>
+            </div>
+
+            <div class="story-card">
+                <h2><i class="fas fa-flag-checkered"></i> 对 LoongFire 的结论</h2>
+                <p>对启用 eBPF 的防火墙而言，唯一具有操作关键性的 LoongArch 变更是<b>原子内存序修复</b> —— 没有它，BPF 定时器/死锁检测路径以及许多核心 <code>smp_mb__after_atomic()</code> 用户在 LoongArch 上是不安全的。</p>
+                <p><b>TCP MSS 回退</b>和 <b>VLAN/IPsec/nftables 修复</b>是最相关的数据包路径项。<b>perf/观察点</b>和 <b>cpufreq</b> 系列改善的是调试和服务器硬件行为，而非数据包处理。</p>
+            </div>
+        </div>
+
+        <div class="post-nav">
+            <a href="index.html"><i class="fas fa-arrow-left"></i>
+                <span data-lang="en">All posts</span><span data-lang="zh">全部文章</span>
+            </a>
+            <a href="../index.html">
+                <span data-lang="en">Home</span><span data-lang="zh">首页</span> <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>
+            <i class="fas fa-dragon"></i> LoongFire · 龙火 &nbsp;|&nbsp;
+            <span data-lang="en">Open Source Firewall for LoongArch</span>
+            <span data-lang="zh">龙架构开源防火墙</span>
+            <span style="margin:0 0.5rem;">·</span>
+            <span data-lang="en">© 2026 LoongFire Project</span>
+            <span data-lang="zh">© 2026 LoongFire 项目</span>
+        </p>
+    </footer>
+
+    <script>
+    (function () {
+        var toggle = document.getElementById('langToggle');
+        if (toggle) {
+            toggle.addEventListener('click', function () {
+                setTimeout(function () {
+                    var current = document.body.classList.contains('lang-zh') ? 'zh' : 'en';
+                    try { localStorage.setItem('loongfire-lang', current); } catch (e) {}
+                }, 0);
+            });
+        }
+    })();
+    </script>
+    <script src="../script.js"></script>
+</body>
+</html>
